@@ -16,12 +16,13 @@ enum Direction {
 public class Balloon extends Entity {
     public Balloon(int x, int y, Image img) {
         super(x, y, img);
+        passable = true;
     }
 
     Direction direction = Direction.RIGHT;
 
     @Override
-    public void update() {
+    public void update(Entity[][] mapToId) {
         if (canMove(this, BombermanGame.mapMatrix) == Direction.RIGHT) {
             this.x = this.x + 1;
             this.direction = Direction.RIGHT;

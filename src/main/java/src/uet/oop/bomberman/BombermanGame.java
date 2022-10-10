@@ -8,18 +8,19 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
 import src.uet.oop.bomberman.entities.Bomber;
+import src.uet.oop.bomberman.entities.Bomb;
 import src.uet.oop.bomberman.entities.Entity;
 import src.uet.oop.bomberman.entities.Grass;
 import src.uet.oop.bomberman.entities.Wall;
 import src.uet.oop.bomberman.entities.*;
 import src.uet.oop.bomberman.graphics.Sprite;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Field;
 
 public class BombermanGame extends Application {
 
@@ -30,9 +31,16 @@ public class BombermanGame extends Application {
     private Canvas canvas;
     private List<Entity> entities = new ArrayList<>();
     private List<Entity> stillObjects = new ArrayList<>();
-    private List<Entity> enemies = new ArrayList<>();           //new
-    public static char[][] mapMatrix = new char[WIDTH][HEIGHT];
+
+    private List<Query> listQuery = new ArrayList<>();
+    private List<Entity> enemies = new ArrayList<>();
+    public static char[][] mapMatrix = new char[100][100];
+
+    public static Entity[][] mapToId = new Entity[100][100];
     static Bomber bomberman;
+
+    static Bomb bomb;
+
 
 
     public static void main(String[] args) {
@@ -53,25 +61,33 @@ public class BombermanGame extends Application {
         Scene scene = new Scene(root);
 
         scene.setOnKeyPressed(keyEvent -> {
+
             switch (keyEvent.getCode()) {
                 case RIGHT: {
-                    bomberman.moveRight();
+                    bomberman.moveRight(entities, mapToId);
                     break;
                 }
                 case LEFT: {
-                    bomberman.moveLeft();
+                    bomberman.moveLeft(entities, mapToId);
                     break;
                 }
                 case UP: {
-                    bomberman.moveUp();
+                    bomberman.moveUp(entities, mapToId);
                     break;
                 }
                 case DOWN: {
-                    bomberman.moveDown();
+                    bomberman.moveDown(entities, mapToId);
                     break;
+                }
+                case SPACE: {
+                    bomb = bomberman.placeBomb();
+                    entities.add(bomb);
+
                 }
             }
         });
+
+
 
         // Them scene vao stage
         stage.setScene(scene);
@@ -95,29 +111,52 @@ public class BombermanGame extends Application {
     public void createMap() {
         createMapFromFile();
         for (int i = 0; i < WIDTH; i++) {
-            for (int j = 0; j < HEIGHT; j++) {
+             for (int j = 0; j < HEIGHT; j++)
+             {
                 Entity grass = new Grass(i, j, Sprite.grass.getFxImage());
-                stillObjects.add(grass);
+                entities.add(grass);
 
                 switch (mapMatrix[j][i]) {
                     case '#': {
                         Entity object = new Wall(i, j, Sprite.wall.getFxImage());
-                        stillObjects.add(object);
+                        entities.add(object);
+                        mapToId[j][i] = object;
                         break;
                     }
                     case '*': {
                         Entity object = new Brick(i, j, Sprite.brick.getFxImage());
-                        stillObjects.add(object);
+                        entities.add(object);
+                        mapToId[j][i] = object;
                         break;
                     }
-                    case '1': {
+                    case 'f': {
+                        Entity object = new PowerupFlame(i, j, Sprite.powerup_flames.getFxImage());
+                        entities.add(object);
+                        mapToId[j][i] = object;
+                        break;
+                    }
+                    case 'p': {
+                        mapMatrix[j][i] = ' ';
+                        break;
+                    }
+                    case 'x': {
+                        Entity object = new Portal(i, j, Sprite.portal.getFxImage());
+                        entities.add(object);
+                        break;
+                    }
+                    /*case '1': {
                         Entity object = new Balloon(i, j, Sprite.balloom_left1.getFxImage());
+                        enemies.add(object);
+                        break;
+                    }*/
+                    case '2': {
+                        Entity object = new Oneal(i, j, Sprite.oneal_left1.getFxImage());
                         enemies.add(object);
                         break;
                     }
                     default: {
                         Entity object = new Grass(i, j, Sprite.grass.getFxImage());
-                        stillObjects.add(object);
+                        entities.add(object);
                         break;
                     }
                 }
@@ -126,7 +165,7 @@ public class BombermanGame extends Application {
     }
 
     private void createMapFromFile() {
-        String filePath = "D:\\CODE UET\\JAVA_CODE\\javafx\\target\\classes\\levels\\Level.txt";
+        String filePath = "D:\\Programming\\java\\Bomberman22-main\\target\\classes\\levels\\Level1.txt";
         try {
             File file = new File(filePath);
             FileReader fileReader = new FileReader(file);
@@ -144,7 +183,7 @@ public class BombermanGame extends Application {
             }
             if (numberLevel < 1 || (numberRow < 1 && numberColumn < 1)) return;
 
-            mapMatrix = new char[numberRow][numberColumn];
+            mapMatrix = new char[100][100];
             int countRow = -1;
             while ((line = bufferedReader.readLine()) != null) {
                 countRow = countRow + 1;
@@ -159,8 +198,62 @@ public class BombermanGame extends Application {
     }
 
     public void update() {
-        entities.forEach(Entity::update);
-        enemies.forEach(Entity::update);
+        /*for (int j = 0; j < HEIGHT; j++) {
+            for (int i = 0; i < WIDTH; i++){
+                if(mapToId[j][i] instanceof Bomber){
+                    System.out.print(i);
+                    System.out.print(j);
+                    System.out.print('\n');
+                }
+            }
+            //System.out.print('\n');
+        }*/
+        if(!bomberman.checkAppearance()){
+            System.exit(0);
+        }
+
+
+        for(int i = 0; i < enemies.size() ; i++){
+            if(enemies.get(i) instanceof Oneal) {
+                ((Oneal) enemies.get(i)).getPlayerInfo(bomberman.getX(), bomberman.getY());
+            }
+            if(!enemies.get(i).checkAppearance() ) {
+                listQuery.add(new Query("remove",enemies.get(i)));
+            }
+        }
+        for(int i = 0;i < listQuery.size() ; i++){
+            if(listQuery.get(i).getType() == "add"){
+                enemies.add(listQuery.get(i).getE());
+            } else {
+                enemies.remove(listQuery.get(i).getE());
+            }
+        }
+        listQuery.clear();
+
+        listQuery.addAll(bomberman.powerUp(mapMatrix,mapToId));
+        for(int i = 0; i < entities.size() ; i++) {
+            if(entities.get(i) instanceof Bomb){
+                Bomb b = (Bomb) entities.get(i);
+                if(b.getStatus() == 1){
+                    listQuery.addAll(b.bombExplode(mapMatrix,mapToId));
+                    b.setStatus(2);
+                }
+            }
+            if(!entities.get(i).checkAppearance() ) {
+                listQuery.add(new Query("remove",entities.get(i)));
+            }
+        }
+
+        for(int i = 0;i < listQuery.size() ; i++){
+            if(listQuery.get(i).getType() == "add"){
+                entities.add(listQuery.get(i).getE());
+            } else {
+                entities.remove(listQuery.get(i).getE());
+            }
+        }
+        listQuery.clear();
+        entities.forEach(e -> e.update(mapToId));
+        enemies.forEach(e -> e.update(mapToId));
     }
 
     public void render() {
@@ -169,4 +262,5 @@ public class BombermanGame extends Application {
         entities.forEach(g -> g.render(gc));
         enemies.forEach(g -> g.render(gc));
     }
+
 }

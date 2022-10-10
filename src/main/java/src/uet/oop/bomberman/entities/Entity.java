@@ -16,20 +16,33 @@ public abstract class Entity {
 
     protected int animate;
 
+    protected boolean appear;
+
+    protected boolean passable;
+
+    protected boolean destroyable;
+
+    protected int status;
+    protected int previousX;
+    protected int previousY;
+
+    public Entity(){}
     //Khởi tạo đối tượng, chuyển từ tọa độ đơn vị sang tọa độ trong canvas
     public Entity( int xUnit, int yUnit, Image img) {
         this.x = xUnit * Sprite.SCALED_SIZE;
         this.y = yUnit * Sprite.SCALED_SIZE;
         this.img = img;
-        this.animate = Sprite.DEFAULT_SIZE;
-
+        this.animate = 0;
+        this.appear = true;
+        this.passable = false;
+        this.destroyable = false;
     }
 
     public void render(GraphicsContext gc) {
         gc.drawImage(img, x, y);
     }
 
-    public abstract void update();
+    public abstract void update(Entity[][] mapToId);
 
     public Image getImg() {
         return img;
@@ -40,7 +53,7 @@ public abstract class Entity {
     }
 
     public int getX() {
-        return x;
+        return x / Sprite.SCALED_SIZE;
     }
 
     public void setX(int x) {
@@ -48,7 +61,7 @@ public abstract class Entity {
     }
 
     public int getY() {
-        return y;
+        return y / Sprite.SCALED_SIZE;
     }
 
     public void setY(int y) {
@@ -63,4 +76,21 @@ public abstract class Entity {
         return e.getBoundary().intersects(this.getBoundary());
     }
 
+    public boolean checkAppearance() { return appear; }
+
+    public boolean canPass(){return passable;}
+    public boolean canDestroy() {return destroyable; }
+
+    public void destroy() { appear = false;}
+
+    public int getStatus(){return status;}
+
+    public void setStatus(int s){status = s;}
+
+    public void updateStatus(){
+        if(status == 0){
+            status = 1;
+            animate = 0;
+        }
+    }
 }
