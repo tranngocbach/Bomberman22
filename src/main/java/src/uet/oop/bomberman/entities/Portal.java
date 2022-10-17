@@ -1,6 +1,7 @@
 package src.uet.oop.bomberman.entities;
 
 import javafx.scene.image.Image;
+import src.uet.oop.bomberman.graphics.Sprite;
 
 public class Portal extends Entity{
     Portal outPortal;
@@ -11,6 +12,5 @@ public class Portal extends Entity{
 
     @Override
     public void update(Entity[][] mapToId) {
-
     }
 }

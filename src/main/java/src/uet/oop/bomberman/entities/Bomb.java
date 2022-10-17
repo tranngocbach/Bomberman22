@@ -17,9 +17,6 @@ public class Bomb extends Entity{
     public List<Query> explode(char[][] map, Entity[][] mapToId, int direction) {
         List<Query> l = new ArrayList<>();
         int x = this.getX(), y = this.getY(), i = 0;
-        if(mapToId[y][x] instanceof Bomber){
-            mapToId[y][x].updateStatus();
-        }
         do {
             Flame f = new Flame();
             switch (direction) {
@@ -80,9 +77,7 @@ public class Bomb extends Entity{
             l.add(new Query("add", f));
 
         }
-        if(mapToId[y][x] instanceof Bomber || mapToId[y][x] instanceof Oneal){
-            mapToId[y][x].updateStatus();
-        } else if(mapToId[y][x] instanceof Brick){
+        if(mapToId[y][x] instanceof Brick){
             mapToId[y][x].updateStatus();
             map[y][x] = ' ';
             mapToId[y][x] = null;
@@ -102,18 +97,20 @@ public class Bomb extends Entity{
 
     @Override
     public void update(Entity[][] mapToId) {
-        mapToId[this.getY()][this.getX()] = this;
         if(status == 0) {
             setImg(Sprite.movingSprite(Sprite.bomb, Sprite.bomb_1, Sprite.bomb_2, animate, 30).getFxImage());
             animate += 1;
-            if (animate == 200) {
+            if (animate == 400) {
                 this.status = 1;
                 this.animate = 0;
             }
         } else {
+            if(mapToId[this.getY()][this.getX()] instanceof Bomber){
+                mapToId[this.getY()][this.getX()].updateStatus();
+            }
             setImg(Sprite.movingSprite(Sprite.bomb_exploded, Sprite.bomb_exploded1, Sprite.bomb_exploded2, animate, 100).getFxImage());
             animate += 1;
-            if (animate == 100) {
+            if (animate == 50) {
                 this.appear = false;
                 mapToId[this.getY()][this.getX()] = null;
             }

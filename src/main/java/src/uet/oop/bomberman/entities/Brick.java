@@ -15,9 +15,9 @@ public class Brick extends Entity {
         if(status == 0){
             return;
         }
-        setImg(Sprite.movingSprite(Sprite.brick_exploded, Sprite.brick_exploded1, Sprite.brick_exploded2, animate, 100).getFxImage());
+        setImg(Sprite.movingSprite(Sprite.brick_exploded, Sprite.brick_exploded1, Sprite.brick_exploded2, animate, 50).getFxImage());
         animate += 1;
-        if(animate == 100) {
+        if(animate == 50) {
             this.appear = false;
         }
     }

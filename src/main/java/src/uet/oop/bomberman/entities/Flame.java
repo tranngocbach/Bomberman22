@@ -19,12 +19,17 @@ public class Flame extends Entity{
     }
     public Flame(int xUnit, int yUnit, boolean isLast, int direction,Image img) {
         super(xUnit, yUnit, img);
+        this.passable = true;
         this.isLast = isLast;
         this.direction = direction;
     }
 
     @Override
     public void update(Entity[][] mapToId) {
+        if(mapToId[this.getY()][this.getX()] instanceof Bomber || mapToId[this.getY()][this.getX()] instanceof Oneal) {
+            mapToId[this.getY()][this.getX()].updateStatus();
+        }
+
         if (direction == 0) {
             if (isLast) {
                 setImg(Sprite.movingSprite(Sprite.explosion_horizontal_left_last
@@ -90,7 +95,7 @@ public class Flame extends Entity{
         }
 
         animate += 1;
-        if(animate == 100) {
+        if(animate == 50) {
             this.appear = false;
         }
     }

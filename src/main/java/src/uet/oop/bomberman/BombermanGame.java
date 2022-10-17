@@ -215,7 +215,7 @@ public class BombermanGame extends Application {
 
         for(int i = 0; i < enemies.size() ; i++){
             if(enemies.get(i) instanceof Oneal) {
-                ((Oneal) enemies.get(i)).getPlayerInfo(bomberman.getX(), bomberman.getY());
+                ((Oneal) enemies.get(i)).getInfo(bomberman.getX(), bomberman.getY(),entities);
             }
             if(!enemies.get(i).checkAppearance() ) {
                 listQuery.add(new Query("remove",enemies.get(i)));
@@ -239,6 +239,11 @@ public class BombermanGame extends Application {
                     b.setStatus(2);
                 }
             }
+
+            if(entities.get(i) instanceof Portal){
+                entities.get(i).updateStatus();
+            }
+
             if(!entities.get(i).checkAppearance() ) {
                 listQuery.add(new Query("remove",entities.get(i)));
             }
