@@ -2,8 +2,8 @@ package src.uet.oop.bomberman.entities;
 
 import javafx.scene.image.Image;
 
-public class PowerupFlame extends Entity{
-    public PowerupFlame(int x, int y, Image img) {
+public class SpeedItem extends Entity {
+    public SpeedItem(int x, int y, Image img) {
         super(x, y, img);
         this.passable = true;
     }

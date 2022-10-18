@@ -1,6 +1,7 @@
 package src.uet.oop.bomberman.entities;
 
 import javafx.scene.image.Image;
+import src.uet.oop.bomberman.BombermanGame;
 import src.uet.oop.bomberman.graphics.Sprite;
 
 import java.util.ArrayList;
@@ -100,7 +101,7 @@ public class Bomb extends Entity{
         if(status == 0) {
             setImg(Sprite.movingSprite(Sprite.bomb, Sprite.bomb_1, Sprite.bomb_2, animate, 30).getFxImage());
             animate += 1;
-            if (animate == 400) {
+            if (animate == 100) {
                 this.status = 1;
                 this.animate = 0;
             }
@@ -111,6 +112,7 @@ public class Bomb extends Entity{
             setImg(Sprite.movingSprite(Sprite.bomb_exploded, Sprite.bomb_exploded1, Sprite.bomb_exploded2, animate, 100).getFxImage());
             animate += 1;
             if (animate == 50) {
+                BombermanGame.numberOfBombs ++;
                 this.appear = false;
                 mapToId[this.getY()][this.getX()] = null;
             }

@@ -12,6 +12,7 @@ public class Brick extends Entity {
 
     @Override
     public void update(Entity[][] mapToId) {
+        mapToId[this.getY()][this.getX()] = this;
         if(status == 0){
             return;
         }

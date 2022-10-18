@@ -2,6 +2,8 @@ package src.uet.oop.bomberman.entities;
 
 import javafx.scene.image.Image;
 import src.uet.oop.bomberman.graphics.Sprite;
+import src.uet.oop.bomberman.BombermanGame;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -10,7 +12,8 @@ public class Bomber extends Entity {
 
     private boolean chuaRaKhoiBomb = false;
 
-    private int explodeDistance ;
+    private int explodeDistance;
+
     public Bomber(int x, int y, Image img) {
         super(x, y, img);
         this.previousX = x;
@@ -20,12 +23,12 @@ public class Bomber extends Entity {
     }
 
     private boolean roundByXAndMove(List<Entity> entities) {
-        if(checkIntersect(entities)) {
+        if (checkIntersect(entities)) {
             return true;
         }
-        for(int dif = -16;dif <= 16; dif += 4){
+        for (int dif = -16; dif <= 16; dif += 4) {
             this.x += dif;
-            if(checkIntersect(entities)) {
+            if (checkIntersect(entities)) {
                 return true;
             }
             this.x -= dif;
@@ -34,18 +37,19 @@ public class Bomber extends Entity {
     }
 
     private boolean roundByYAndMove(List<Entity> entities) {
-        if(checkIntersect(entities)) {
+        if (checkIntersect(entities)) {
             return true;
         }
-        for(int dif = -16;dif <= 16; dif += 4){
+        for (int dif = -16; dif <= 16; dif += 4) {
             this.y += dif;
-            if(checkIntersect(entities)) {
+            if (checkIntersect(entities)) {
                 return true;
             }
             this.y -= dif;
         }
         return false;
     }
+
     public void moveRight(List<Entity> entities, Entity mapToId[][]) {
         setImg(Sprite.movingSprite(Sprite.player_right
                 , Sprite.player_right_1
@@ -53,8 +57,8 @@ public class Bomber extends Entity {
                 , animate
                 , 36).getFxImage());
         this.x = this.x + speed;
-        if(!roundByYAndMove(entities)){
-           this.x -= speed;
+        if (!roundByYAndMove(entities)) {
+            this.x -= speed;
         }
     }
 
@@ -65,7 +69,7 @@ public class Bomber extends Entity {
                 , animate
                 , 36).getFxImage());
         this.x = this.x - speed;
-        if(!roundByYAndMove(entities)){
+        if (!roundByYAndMove(entities)) {
             this.x += speed;
         }
 
@@ -79,7 +83,7 @@ public class Bomber extends Entity {
                 , 36).getFxImage());
 
         this.y = this.y - speed;
-        if(!roundByXAndMove(entities)){
+        if (!roundByXAndMove(entities)) {
             this.y += speed;
         }
 
@@ -93,58 +97,71 @@ public class Bomber extends Entity {
                 , 36).getFxImage());
 
         this.y = this.y + speed;
-        if(!roundByXAndMove(entities)){
+        if (!roundByXAndMove(entities)) {
             this.y -= speed;
         }
     }
 
     private boolean checkIntersect(List<Entity> entities) {
-        if(!this.checkAppearance()) {
+        if (!this.checkAppearance()) {
             return false;
         }
         boolean flag = true;
-        for(int i = entities.size() - 1; i >= 0 ; i--) {
-            if(this.intersects(entities.get(i)) && entities.get(i) instanceof Bomb) {
-                if(this.chuaRaKhoiBomb) {
+        for (int i = entities.size() - 1; i >= 0; i--) {
+            if (this.intersects(entities.get(i)) && entities.get(i) instanceof Bomb) {
+                if (this.chuaRaKhoiBomb) {
                     flag = false;
                     continue;
-                }
-                else {
+                } else {
                     return false;
                 }
             }
-            if(this.intersects(entities.get(i)) && !entities.get(i).canPass()){
+            if (this.intersects(entities.get(i)) && !entities.get(i).canPass()) {
                 return false;
             }
         }
-        if(flag){
+        if (flag) {
             this.chuaRaKhoiBomb = false;
         }
         return true;
     }
-    public Bomb placeBomb(){
+
+    public Bomb placeBomb() {
         chuaRaKhoiBomb = true;
-        return new Bomb(this.x/Sprite.SCALED_SIZE, this.y/Sprite.SCALED_SIZE, explodeDistance, Sprite.bomb.getFxImage());
+        return new Bomb(this.x / Sprite.SCALED_SIZE, this.y / Sprite.SCALED_SIZE, explodeDistance, Sprite.bomb.getFxImage());
     }
 
-    public List<Query> powerUp(char map[][],Entity mapToId[][]){
+    public List<Query> powerUp(char map[][], Entity mapToId[][]) {
         List<Query> l = new ArrayList<>();
         int y = this.getY();
         int x = this.getX();
-        if(map[y][x] == 'f'){
-            l.add(new Query("remove",mapToId[this.getY()][this.getX()]));
+        if (mapToId[y][x] instanceof PowerupFlame) {
+            l.add(new Query("remove", mapToId[this.getY()][this.getX()]));
             map[y][x] = ' ';
             mapToId[this.getY()][this.getX()] = null;
             this.explodeDistance++;
+        } else if (mapToId[y][x] instanceof SpeedItem) {
+            l.add(new Query("remove", mapToId[this.getY()][this.getX()]));
+            map[y][x] = ' ';
+            mapToId[this.getY()][this.getX()] = null;
+            this.speed *= 2;
+        } else if (mapToId[y][x] instanceof BombItem) {
+            l.add(new Query("remove", mapToId[this.getY()][this.getX()]));
+            map[y][x] = ' ';
+            mapToId[this.getY()][this.getX()] = null;
+            BombermanGame.numberOfBombs ++;
         }
         return l;
     }
+
     @Override
     public void update(Entity[][] mapToId) {
-        animate ++;
-        if(status == 0){
-            if(animate == 36){animate = 0;}
-            if(mapToId[this.getY()][this.getX()] instanceof Oneal){
+        animate++;
+        if (status == 0) {
+            if (animate == 36) {
+                animate = 0;
+            }
+            if (mapToId[this.getY()][this.getX()] instanceof Oneal) {
                 this.updateStatus();
             }
             mapToId[previousY][previousX] = null;
@@ -152,7 +169,7 @@ public class Bomber extends Entity {
             previousX = this.getX();
             previousY = this.getY();
         }
-        if(status == 1){
+        if (status == 1) {
             setImg(Sprite.movingSprite(Sprite.player_dead1, Sprite.player_dead2, Sprite.player_dead3, animate, 150).getFxImage());
             if (animate == 150) {
                 this.appear = false;
