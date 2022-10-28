@@ -2,6 +2,7 @@ package src.uet.oop.bomberman.entities;
 
 import javafx.scene.image.Image;
 import src.uet.oop.bomberman.BombermanGame;
+import src.uet.oop.bomberman.audio.MyAudioPlayer;
 import src.uet.oop.bomberman.graphics.Sprite;
 
 import java.util.ArrayList;
@@ -109,7 +110,11 @@ public class Bomb extends Entity{
             if(mapToId[this.getY()][this.getX()] instanceof Bomber){
                 mapToId[this.getY()][this.getX()].updateStatus();
             }
-            setImg(Sprite.movingSprite(Sprite.bomb_exploded, Sprite.bomb_exploded1, Sprite.bomb_exploded2, animate, 100).getFxImage());
+            if (animate == 0) {
+                MyAudioPlayer explodesound = new MyAudioPlayer(MyAudioPlayer.EXPLOSION);
+                explodesound.play();
+            }
+            setImg(Sprite.movingSprite(Sprite.bomb_exploded, Sprite.bomb_exploded1, Sprite.bomb_exploded2, animate, 30).getFxImage());
             animate += 1;
             if (animate == 50) {
                 BombermanGame.numberOfBombs ++;

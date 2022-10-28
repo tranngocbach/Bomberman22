@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import java.util.*;
 
 import javafx.util.Pair;
+import src.uet.oop.bomberman.audio.MyAudioPlayer;
 import src.uet.oop.bomberman.graphics.Sprite;
 
 public class Oneal extends Entity {
@@ -223,6 +224,10 @@ public class Oneal extends Entity {
                     case 1:{this.moveDown(mapToId);break;}
                 }
             }*/
+        }
+        if (animate == 0) {
+            MyAudioPlayer deadOneal = new MyAudioPlayer(MyAudioPlayer.ENEMY_DEAD);
+            deadOneal.play();
         }
         if(status == 1){
             setImg(Sprite.movingSprite(Sprite.mob_dead1, Sprite.mob_dead2, Sprite.mob_dead3, animate, 150).getFxImage());

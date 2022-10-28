@@ -1,6 +1,7 @@
 package src.uet.oop.bomberman.entities;
 
 import javafx.scene.image.Image;
+import src.uet.oop.bomberman.audio.MyAudioPlayer;
 import src.uet.oop.bomberman.graphics.Sprite;
 import src.uet.oop.bomberman.BombermanGame;
 
@@ -127,6 +128,8 @@ public class Bomber extends Entity {
     }
 
     public Bomb placeBomb() {
+        MyAudioPlayer placeSound = new MyAudioPlayer(MyAudioPlayer.PLACE_BOMB);
+        placeSound.play();
         chuaRaKhoiBomb = true;
         return new Bomb(this.x / Sprite.SCALED_SIZE, this.y / Sprite.SCALED_SIZE, explodeDistance, Sprite.bomb.getFxImage());
     }
@@ -136,16 +139,22 @@ public class Bomber extends Entity {
         int y = this.getY();
         int x = this.getX();
         if (mapToId[y][x] instanceof PowerupFlame) {
+            MyAudioPlayer powerUpAudio = new MyAudioPlayer(MyAudioPlayer.POWER_UP);
+            powerUpAudio.play();
             l.add(new Query("remove", mapToId[this.getY()][this.getX()]));
             map[y][x] = ' ';
             mapToId[this.getY()][this.getX()] = null;
             this.explodeDistance++;
         } else if (mapToId[y][x] instanceof SpeedItem) {
+            MyAudioPlayer powerUpAudio = new MyAudioPlayer(MyAudioPlayer.POWER_UP);
+            powerUpAudio.play();
             l.add(new Query("remove", mapToId[this.getY()][this.getX()]));
             map[y][x] = ' ';
             mapToId[this.getY()][this.getX()] = null;
             this.speed *= 2;
         } else if (mapToId[y][x] instanceof BombItem) {
+            MyAudioPlayer powerUpAudio = new MyAudioPlayer(MyAudioPlayer.POWER_UP);
+            powerUpAudio.play();
             l.add(new Query("remove", mapToId[this.getY()][this.getX()]));
             map[y][x] = ' ';
             mapToId[this.getY()][this.getX()] = null;
@@ -156,11 +165,7 @@ public class Bomber extends Entity {
 
     @Override
     public void update(Entity[][] mapToId) {
-        animate++;
         if (status == 0) {
-            if (animate == 36) {
-                animate = 0;
-            }
             if (mapToId[this.getY()][this.getX()] instanceof Oneal) {
                 this.updateStatus();
             }
@@ -170,6 +175,11 @@ public class Bomber extends Entity {
             previousY = this.getY();
         }
         if (status == 1) {
+            animate ++;
+            if (animate == 1) {
+                MyAudioPlayer deadAudio = new MyAudioPlayer(MyAudioPlayer.DEAD);
+                deadAudio.play();
+            }
             setImg(Sprite.movingSprite(Sprite.player_dead1, Sprite.player_dead2, Sprite.player_dead3, animate, 150).getFxImage());
             if (animate == 150) {
                 this.appear = false;

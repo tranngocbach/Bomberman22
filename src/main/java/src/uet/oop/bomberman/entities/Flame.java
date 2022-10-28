@@ -3,7 +3,7 @@ package src.uet.oop.bomberman.entities;
 import javafx.scene.image.Image;
 import src.uet.oop.bomberman.graphics.Sprite;
 
-public class Flame extends Entity{
+public class Flame extends Entity {
     boolean isLast;
 
     int endAnimation = 100;
@@ -14,10 +14,11 @@ public class Flame extends Entity{
     //   0   2
     //     3
 
-    public Flame(){
+    public Flame() {
         super();
     }
-    public Flame(int xUnit, int yUnit, boolean isLast, int direction,Image img) {
+
+    public Flame(int xUnit, int yUnit, boolean isLast, int direction, Image img) {
         super(xUnit, yUnit, img);
         this.passable = true;
         this.isLast = isLast;
@@ -26,7 +27,7 @@ public class Flame extends Entity{
 
     @Override
     public void update(Entity[][] mapToId) {
-        if(mapToId[this.getY()][this.getX()] instanceof Bomber || mapToId[this.getY()][this.getX()] instanceof Oneal) {
+        if (mapToId[this.getY()][this.getX()] instanceof Bomber || mapToId[this.getY()][this.getX()] instanceof Oneal) {
             mapToId[this.getY()][this.getX()].updateStatus();
         }
 
@@ -95,7 +96,7 @@ public class Flame extends Entity{
         }
 
         animate += 1;
-        if(animate == 50) {
+        if (animate == 50) {
             this.appear = false;
         }
     }

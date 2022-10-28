@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
+import src.uet.oop.bomberman.audio.MyAudioPlayer;
 import src.uet.oop.bomberman.entities.Bomber;
 import src.uet.oop.bomberman.entities.Bomb;
 import src.uet.oop.bomberman.entities.Entity;
@@ -42,6 +43,16 @@ public class BombermanGame extends Application {
 
     static Bomb bomb;
 
+    public static MyAudioPlayer musicPlayer = new MyAudioPlayer(MyAudioPlayer.BACKGROUND_MUSIC);;
+    public MyAudioPlayer getMusicPlayer() {
+        return musicPlayer;
+    }
+    public void setMusicPlayer(MyAudioPlayer _musicPlayer) {
+        musicPlayer = _musicPlayer;
+    }
+    private boolean paused = false;
+    private boolean muted = false;
+
 
     public static void main(String[] args) {
         Application.launch(BombermanGame.class);
@@ -49,6 +60,7 @@ public class BombermanGame extends Application {
 
     @Override
     public void start(Stage stage) {
+        musicPlayer.play();
         // Tao Canvas
         canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);
         gc = canvas.getGraphicsContext2D();
@@ -85,6 +97,23 @@ public class BombermanGame extends Application {
                         entities.add(bomb);
                         numberOfBombs --;
                     }
+                    break;
+                }
+                case K: {
+                    if (paused) {
+                        paused = false;
+                    } else {
+                        paused = true;
+                    }
+                    break;
+                }
+                case M: {
+                    if(muted) {
+                        muted = false;
+                    } else {
+                        muted = true;
+                    }
+                    break;
                 }
             }
         });
@@ -97,8 +126,17 @@ public class BombermanGame extends Application {
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long l) {
-                render();
-                update();
+                if (paused) {
+                    //halted
+                } else {
+                    render();
+                    update();
+                }
+                if(muted) {
+                    musicPlayer.stop();
+                } else {
+                    musicPlayer.loop();
+                }
             }
         };
         timer.start();
@@ -180,7 +218,7 @@ public class BombermanGame extends Application {
     }
 
     private void createMapFromFile() {
-        String filePath = "C:\\Users\\Admin\\Downloads\\Bomberman22\\src\\main\\resources\\levels\\Level1.txt";
+        String filePath = "src\\main\\resources\\levels\\Level1.txt";
         try {
             File file = new File(filePath);
             FileReader fileReader = new FileReader(file);
