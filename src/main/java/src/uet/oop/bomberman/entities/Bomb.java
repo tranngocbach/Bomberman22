@@ -17,6 +17,10 @@ public class Bomb extends Entity{
     }
 
     public List<Query> explode(char[][] map, Entity[][] mapToId, int direction) {
+        if (this.intersects(BombermanGame.bomberman)){
+            //BombermanGame.bomberman.updateStatus();
+        }
+
         List<Query> l = new ArrayList<>();
         int x = this.getX(), y = this.getY(), i = 0;
         do {
@@ -45,9 +49,6 @@ public class Bomb extends Entity{
             }
             if(i == distance - 1){
                 break;
-            }
-            if(mapToId[y][x] instanceof Bomber || mapToId[y][x] instanceof Oneal){
-                mapToId[y][x].updateStatus();
             }
             if (mapToId[y][x] == null || mapToId[y][x].canPass()) {
                 l.add(new Query("add", f));
@@ -98,18 +99,15 @@ public class Bomb extends Entity{
     }
 
     @Override
-    public void update(Entity[][] mapToId) {
+    public void update() {
         if(status == 0) {
             setImg(Sprite.movingSprite(Sprite.bomb, Sprite.bomb_1, Sprite.bomb_2, animate, 30).getFxImage());
             animate += 1;
-            if (animate == 100) {
+            if (animate == 300) {
                 this.status = 1;
                 this.animate = 0;
             }
         } else {
-            if(mapToId[this.getY()][this.getX()] instanceof Bomber){
-                mapToId[this.getY()][this.getX()].updateStatus();
-            }
             if (animate == 0) {
                 MyAudioPlayer explodesound = new MyAudioPlayer(MyAudioPlayer.EXPLOSION);
                 explodesound.play();
@@ -119,7 +117,6 @@ public class Bomb extends Entity{
             if (animate == 50) {
                 BombermanGame.numberOfBombs ++;
                 this.appear = false;
-                mapToId[this.getY()][this.getX()] = null;
             }
         }
 

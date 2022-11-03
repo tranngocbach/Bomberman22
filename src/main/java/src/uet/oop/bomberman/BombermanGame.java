@@ -6,6 +6,9 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.Light;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import src.uet.oop.bomberman.audio.MyAudioPlayer;
 import src.uet.oop.bomberman.entities.Bomber;
@@ -18,30 +21,36 @@ import src.uet.oop.bomberman.graphics.Sprite;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.lang.reflect.Field;
 
 public class BombermanGame extends Application {
 
-    public static final int WIDTH = 31;
-    public static final int HEIGHT = 13;
+    public static int WIDTH = 31;
+    public static int HEIGHT = 13;
     public static int numberOfBombs = 1;
+
+    public static int curLevel = 0;
 
     private GraphicsContext gc;
     private Canvas canvas;
-    private List<Entity> entities = new ArrayList<>();
+    public static List<Entity> entities = new ArrayList<>();
     private List<Entity> stillObjects = new ArrayList<>();
 
     private List<Query> listQuery = new ArrayList<>();
-    private List<Entity> enemies = new ArrayList<>();
+    public static List<Entity> enemies = new ArrayList<>();
     public static char[][] mapMatrix = new char[100][100];
 
     public static Entity[][] mapToId = new Entity[100][100];
-    static Bomber bomberman;
+    public static Bomber bomberman;
 
+    private boolean paused = false;
+    private boolean muted = false;
     static Bomb bomb;
+
+    static Scanner scanner;
 
     public static MyAudioPlayer musicPlayer = new MyAudioPlayer(MyAudioPlayer.BACKGROUND_MUSIC);;
     public MyAudioPlayer getMusicPlayer() {
@@ -50,8 +59,62 @@ public class BombermanGame extends Application {
     public void setMusicPlayer(MyAudioPlayer _musicPlayer) {
         musicPlayer = _musicPlayer;
     }
-    private boolean paused = false;
-    private boolean muted = false;
+
+
+
+    private static Set<KeyCode> pressedKeys = new HashSet<>();
+
+
+    public void keyListen() {
+        //System.out.println(pressedKeys.size());
+        if (!pressedKeys.isEmpty()) {
+            for (Iterator<KeyCode> it = pressedKeys.iterator(); it.hasNext(); ) {
+                //System.out.println(it.next());
+                switch (it.next()) {
+                    case RIGHT: {
+                        bomberman.moveRight(entities, mapToId);
+                        break;
+                    }
+                    case LEFT: {
+                        bomberman.moveLeft(entities, mapToId);
+                        break;
+                    }
+                    case UP: {
+                        bomberman.moveUp(entities, mapToId);
+                        break;
+                    }
+                    case DOWN: {
+                        bomberman.moveDown(entities, mapToId);
+                        break;
+                    }
+                    case SPACE: {
+                        if (numberOfBombs > 0) {
+                            bomb = bomberman.placeBomb();
+                            entities.add(bomb);
+                            numberOfBombs--;
+                        }
+                        break;
+                    }
+                    case K: {
+                        if (paused) {
+                            paused = false;
+                        } else {
+                            paused = true;
+                        }
+                        break;
+                    }
+                    case M: {
+                        if (muted) {
+                            muted = false;
+                        } else {
+                            muted = true;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
 
     public static void main(String[] args) {
@@ -72,51 +135,15 @@ public class BombermanGame extends Application {
         // Tao scene
         Scene scene = new Scene(root);
 
-        scene.setOnKeyPressed(keyEvent -> {
-
-            switch (keyEvent.getCode()) {
-                case RIGHT: {
-                    bomberman.moveRight(entities, mapToId);
-                    break;
-                }
-                case LEFT: {
-                    bomberman.moveLeft(entities, mapToId);
-                    break;
-                }
-                case UP: {
-                    bomberman.moveUp(entities, mapToId);
-                    break;
-                }
-                case DOWN: {
-                    bomberman.moveDown(entities, mapToId);
-                    break;
-                }
-                case SPACE: {
-                    if (numberOfBombs > 0) {
-                        bomb = bomberman.placeBomb();
-                        entities.add(bomb);
-                        numberOfBombs --;
-                    }
-                    break;
-                }
-                case K: {
-                    if (paused) {
-                        paused = false;
-                    } else {
-                        paused = true;
-                    }
-                    break;
-                }
-                case M: {
-                    if(muted) {
-                        muted = false;
-                    } else {
-                        muted = true;
-                    }
-                    break;
-                }
-            }
+        scene.setOnKeyReleased(keyEvent -> {
+            pressedKeys.remove(keyEvent.getCode());
         });
+        scene.setOnKeyPressed(keyEvent -> {
+            pressedKeys.add(keyEvent.getCode());
+            keyListen();
+        });
+
+
 
 
         // Them scene vao stage
@@ -141,16 +168,14 @@ public class BombermanGame extends Application {
         };
         timer.start();
 
-        createMap();
-
-        bomberman = new Bomber(1, 1, Sprite.player_right.getFxImage());
-        entities.add(bomberman);
+        load();
     }
 
-    public void createMap() {
+    public static void createMap() {
         createMapFromFile();
         for (int i = 0; i < WIDTH; i++) {
             for (int j = 0; j < HEIGHT; j++) {
+                mapToId[j][i] = null;
                 Entity grass = new Grass(i, j, Sprite.grass.getFxImage());
                 entities.add(grass);
 
@@ -172,6 +197,7 @@ public class BombermanGame extends Application {
                         entities.add(powerupFlame);
                         Entity object = new Brick(i, j, Sprite.brick.getFxImage());
                         entities.add(object);
+                        mapToId[j][i] = object;
                         break;
                     }
                     case 's': {
@@ -179,6 +205,7 @@ public class BombermanGame extends Application {
                         entities.add(speedItem);
                         Entity object = new Brick(i, j, Sprite.brick.getFxImage());
                         entities.add(object);
+                        mapToId[j][i] = object;
                         break;
                     }
                     case 'b': {
@@ -186,6 +213,7 @@ public class BombermanGame extends Application {
                         entities.add(bombItem);
                         Entity object = new Brick(i, j, Sprite.brick.getFxImage());
                         entities.add(object);
+                        mapToId[j][i] = object;
                         break;
                     }
                     case 'p': {
@@ -197,13 +225,23 @@ public class BombermanGame extends Application {
                         entities.add(object);
                         break;
                     }
-//                    case '1': {
-//                        Entity object = new Balloom(i, j, Sprite.balloom_left1.getFxImage());
-//                        enemies.add(object);
-//                        break;
-//                    }
+                    case '1': {
+                        Entity object = new Balloom(i, j, Sprite.balloom_left1.getFxImage());
+                        enemies.add(object);
+                        break;
+                    }
                     case '2': {
                         Entity object = new Oneal(i, j, Sprite.oneal_left1.getFxImage());
+                        enemies.add(object);
+                        break;
+                    }
+                    case '3': {
+                        Entity object = new kondoria(i, j, Sprite.kondoria_left1.getFxImage());
+                        enemies.add(object);
+                        break;
+                    }
+                    case '4': {
+                        Entity object = new Doll(i, j, Sprite.doll_left1.getFxImage());
                         enemies.add(object);
                         break;
                     }
@@ -217,8 +255,9 @@ public class BombermanGame extends Application {
         }
     }
 
-    private void createMapFromFile() {
-        String filePath = "src\\main\\resources\\levels\\Level1.txt";
+    private static void createMapFromFile() {
+
+        String filePath = "src\\main\\resources\\levels\\Level"+ Integer.toString(curLevel) +".txt";
         try {
             File file = new File(filePath);
             FileReader fileReader = new FileReader(file);
@@ -267,9 +306,6 @@ public class BombermanGame extends Application {
 
 
         for (int i = 0; i < enemies.size(); i++) {
-            if (enemies.get(i) instanceof Oneal) {
-                ((Oneal) enemies.get(i)).getInfo(bomberman.getX(), bomberman.getY(), entities);
-            }
             if (!enemies.get(i).checkAppearance()) {
                 listQuery.add(new Query("remove", enemies.get(i)));
             }
@@ -283,7 +319,7 @@ public class BombermanGame extends Application {
         }
         listQuery.clear();
 
-        listQuery.addAll(bomberman.powerUp(mapMatrix, mapToId));
+
         for (int i = 0; i < entities.size(); i++) {
             if (entities.get(i) instanceof Bomb) {
                 Bomb b = (Bomb) entities.get(i);
@@ -291,10 +327,6 @@ public class BombermanGame extends Application {
                     listQuery.addAll(b.bombExplode(mapMatrix, mapToId));
                     b.setStatus(2);
                 }
-            }
-
-            if (entities.get(i) instanceof Portal) {
-                entities.get(i).updateStatus();
             }
 
             if (!entities.get(i).checkAppearance()) {
@@ -310,8 +342,12 @@ public class BombermanGame extends Application {
             }
         }
         listQuery.clear();
-        entities.forEach(e -> e.update(mapToId));
-        enemies.forEach(e -> e.update(mapToId));
+        for (int i = 0; i < entities.size(); i ++) {
+            entities.get(i).update();
+        }
+        for (int i = 0; i < enemies.size(); i ++) {
+            enemies.get(i).update();
+        }
     }
 
     public void render() {
@@ -321,4 +357,23 @@ public class BombermanGame extends Application {
         enemies.forEach(g -> g.render(gc));
     }
 
+    public static void load() {
+        curLevel ++;
+        if(curLevel == 6)System.exit(0);
+        try {
+            scanner = new Scanner(new FileReader("src\\main\\resources\\levels\\Level"+ Integer.toString(1) +".txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        scanner.nextInt();
+        HEIGHT = scanner.nextInt();
+        WIDTH = scanner.nextInt();
+        enemies.removeAll(enemies);
+        entities.removeAll(entities);
+
+        scanner.nextLine();
+        createMap();
+        bomberman = new Bomber(1, 1, Sprite.player_right.getFxImage());
+        entities.add(bomberman);
+    }
 }

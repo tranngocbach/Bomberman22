@@ -42,7 +42,7 @@ public abstract class Entity {
         gc.drawImage(img, x, y);
     }
 
-    public abstract void update(Entity[][] mapToId);
+    public abstract void update();
 
     public Image getImg() {
         return img;
@@ -87,6 +87,12 @@ public abstract class Entity {
 
     public void setStatus(int s){status = s;}
 
+    public boolean inCell()
+    {
+
+        return (this.getX() * Sprite.SCALED_SIZE == x)
+                &&(this.getY() * Sprite.SCALED_SIZE == y);
+    }
     public void updateStatus(){
         if(status == 0){
             status = 1;

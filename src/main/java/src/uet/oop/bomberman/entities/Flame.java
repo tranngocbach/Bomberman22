@@ -1,6 +1,7 @@
 package src.uet.oop.bomberman.entities;
 
 import javafx.scene.image.Image;
+import src.uet.oop.bomberman.BombermanGame;
 import src.uet.oop.bomberman.graphics.Sprite;
 
 public class Flame extends Entity {
@@ -26,11 +27,16 @@ public class Flame extends Entity {
     }
 
     @Override
-    public void update(Entity[][] mapToId) {
-        if (mapToId[this.getY()][this.getX()] instanceof Bomber || mapToId[this.getY()][this.getX()] instanceof Oneal) {
-            mapToId[this.getY()][this.getX()].updateStatus();
-        }
+    public void update() {
 
+        for (int i = BombermanGame.enemies.size() - 1; i >= 0; i--) {
+            if (this.intersects(BombermanGame.enemies.get(i))){
+                BombermanGame.enemies.get(i).updateStatus();
+            }
+        }
+        if (this.intersects(BombermanGame.bomberman)){
+            BombermanGame.bomberman.updateStatus();
+        }
         if (direction == 0) {
             if (isLast) {
                 setImg(Sprite.movingSprite(Sprite.explosion_horizontal_left_last

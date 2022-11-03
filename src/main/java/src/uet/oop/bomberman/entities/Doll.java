@@ -9,13 +9,16 @@ import src.uet.oop.bomberman.BombermanGame;
 import src.uet.oop.bomberman.audio.MyAudioPlayer;
 import src.uet.oop.bomberman.graphics.Sprite;
 
-public class Oneal extends Entity {
+public class Doll extends Entity {
     List<Entity> entities;
-    private int speed = Sprite.SCALED_SIZE / 32;
+    private int speed = Sprite.SCALED_SIZE / 16;
+    private int numberOfBomb = 1;
+    int playerX;
+    int playerY;
 
     int currentDirection ;
     List<Pair<Integer,Integer> > listMove = new ArrayList<>();
-    public Oneal(int x, int y, Image img) {
+    public Doll(int x, int y, Image img) {
         super(x, y, img);
         previousX = x;
         previousY = y;
@@ -26,29 +29,10 @@ public class Oneal extends Entity {
         listMove.add(new Pair<>(1,0));
     }
 
-    int findGoodPathToPlayer() {
-        int min = Integer.MAX_VALUE;
-        int playerX = BombermanGame.bomberman.getX();
-        int playerY = BombermanGame.bomberman.getY();
-        for(int i = 0 ; i < 4; i++){
-            int x = Math.abs(this.getX() + listMove.get(i).getKey() - playerX);
-            int y = Math.abs(this.getY() + listMove.get(i).getValue() - playerY);
-            min = Math.min(min, x + y);
-        }
-        for(int i = 0 ; i < 4; i++){
-            int x = Math.abs(this.getX() + listMove.get(i).getKey() - playerX);
-            int y = Math.abs(this.getY() + listMove.get(i).getValue() - playerY);
-            if(x + y == min)
-            {
-                return i;
-            }
-        }
-        return 0;
-    }
     public boolean moveRight() {
-        setImg(Sprite.movingSprite(Sprite.oneal_right1
-                , Sprite.oneal_right2
-                , Sprite.oneal_right3
+        setImg(Sprite.movingSprite(Sprite.doll_right1
+                , Sprite.doll_right2
+                , Sprite.doll_right3
                 , animate
                 , 36).getFxImage());
         this.x = this.x + speed;
@@ -60,9 +44,9 @@ public class Oneal extends Entity {
     }
 
     public boolean moveLeft() {
-        setImg(Sprite.movingSprite(Sprite.oneal_left1
-                , Sprite.oneal_left2
-                , Sprite.oneal_left3
+        setImg(Sprite.movingSprite(Sprite.doll_left1
+                , Sprite.doll_left2
+                , Sprite.doll_left3
                 , animate
                 , 36).getFxImage());
         this.x = this.x - speed;
@@ -74,9 +58,9 @@ public class Oneal extends Entity {
     }
 
     public boolean moveUp() {
-        setImg(Sprite.movingSprite(Sprite.oneal_right1
-                , Sprite.oneal_right2
-                , Sprite.oneal_right3
+        setImg(Sprite.movingSprite(Sprite.doll_right1
+                , Sprite.doll_right2
+                , Sprite.doll_right3
                 , animate
                 , 36).getFxImage());
 
@@ -89,9 +73,9 @@ public class Oneal extends Entity {
     }
 
     public boolean moveDown() {
-        setImg(Sprite.movingSprite(Sprite.oneal_left1
-                , Sprite.oneal_left2
-                , Sprite.oneal_left3
+        setImg(Sprite.movingSprite(Sprite.doll_left1
+                , Sprite.doll_left2
+                , Sprite.doll_left3
                 , animate
                 , 36).getFxImage());
 
@@ -108,10 +92,19 @@ public class Oneal extends Entity {
         }
         for (int i = BombermanGame.entities.size() - 1; i >= 0; i--) {
             if (this.intersects(BombermanGame.entities.get(i)) && !BombermanGame.entities.get(i).canPass()) {
+                if(BombermanGame.entities.get(i) instanceof Bomb){
+                    continue;
+                }
                 return false;
             }
         }
         return true;
+    }
+
+    public Bomb placeBomb() {
+        MyAudioPlayer placeSound = new MyAudioPlayer(MyAudioPlayer.PLACE_BOMB);
+        placeSound.play();
+        return new Bomb(this.x / Sprite.SCALED_SIZE, this.y / Sprite.SCALED_SIZE, 1, Sprite.bomb.getFxImage());
     }
 
     @Override
@@ -121,7 +114,10 @@ public class Oneal extends Entity {
             Random generator = new Random();
 
             if (this.inCell()) {
-                currentDirection = findGoodPathToPlayer();
+                currentDirection = generator.nextInt(4);
+            }
+            if(generator.nextInt(700) == 0){
+                BombermanGame.entities.add(this.placeBomb());
             }
             switch (currentDirection) {
                 case 0: {
@@ -145,8 +141,8 @@ public class Oneal extends Entity {
 
         if(status == 1){
             if (animate == 0) {
-                MyAudioPlayer deadOneal = new MyAudioPlayer(MyAudioPlayer.ENEMY_DEAD);
-                deadOneal.play();
+                MyAudioPlayer deaddoll = new MyAudioPlayer(MyAudioPlayer.ENEMY_DEAD);
+                deaddoll.play();
             }
             setImg(Sprite.movingSprite(Sprite.mob_dead1, Sprite.mob_dead2, Sprite.mob_dead3, animate, 150).getFxImage());
             animate += 1;

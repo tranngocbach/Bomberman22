@@ -9,17 +9,17 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Bomber extends Entity {
-    private int speed = Sprite.SCALED_SIZE / 4;
+    public int speed = Sprite.SCALED_SIZE / 4;
 
     private boolean chuaRaKhoiBomb = false;
 
-    private int explodeDistance;
+    public int explodeDistance;
 
     public Bomber(int x, int y, Image img) {
         super(x, y, img);
         this.previousX = x;
         this.previousY = y;
-        this.explodeDistance = 100;
+        this.explodeDistance = 1;
         this.passable = true;
     }
 
@@ -27,7 +27,8 @@ public class Bomber extends Entity {
         if (checkIntersect(entities)) {
             return true;
         }
-        for (int dif = -16; dif <= 16; dif += 4) {
+
+        for (int dif = -4; dif <= 4; dif += 4) {
             this.x += dif;
             if (checkIntersect(entities)) {
                 return true;
@@ -41,7 +42,7 @@ public class Bomber extends Entity {
         if (checkIntersect(entities)) {
             return true;
         }
-        for (int dif = -16; dif <= 16; dif += 4) {
+        for (int dif = -4; dif <= 4; dif += 4) {
             this.y += dif;
             if (checkIntersect(entities)) {
                 return true;
@@ -104,7 +105,7 @@ public class Bomber extends Entity {
     }
 
     private boolean checkIntersect(List<Entity> entities) {
-        if (!this.checkAppearance()) {
+        if (this.getStatus() == 1) {
             return false;
         }
         boolean flag = true;
@@ -134,48 +135,18 @@ public class Bomber extends Entity {
         return new Bomb(this.x / Sprite.SCALED_SIZE, this.y / Sprite.SCALED_SIZE, explodeDistance, Sprite.bomb.getFxImage());
     }
 
-    public List<Query> powerUp(char map[][], Entity mapToId[][]) {
-        List<Query> l = new ArrayList<>();
-        int y = this.getY();
-        int x = this.getX();
-        if (mapToId[y][x] instanceof PowerupFlame) {
-            MyAudioPlayer powerUpAudio = new MyAudioPlayer(MyAudioPlayer.POWER_UP);
-            powerUpAudio.play();
-            l.add(new Query("remove", mapToId[this.getY()][this.getX()]));
-            map[y][x] = ' ';
-            mapToId[this.getY()][this.getX()] = null;
-            this.explodeDistance++;
-        } else if (mapToId[y][x] instanceof SpeedItem) {
-            MyAudioPlayer powerUpAudio = new MyAudioPlayer(MyAudioPlayer.POWER_UP);
-            powerUpAudio.play();
-            l.add(new Query("remove", mapToId[this.getY()][this.getX()]));
-            map[y][x] = ' ';
-            mapToId[this.getY()][this.getX()] = null;
-            this.speed *= 2;
-        } else if (mapToId[y][x] instanceof BombItem) {
-            MyAudioPlayer powerUpAudio = new MyAudioPlayer(MyAudioPlayer.POWER_UP);
-            powerUpAudio.play();
-            l.add(new Query("remove", mapToId[this.getY()][this.getX()]));
-            map[y][x] = ' ';
-            mapToId[this.getY()][this.getX()] = null;
-            BombermanGame.numberOfBombs ++;
-        }
-        return l;
-    }
 
     @Override
-    public void update(Entity[][] mapToId) {
+    public void update() {
+        animate ++;
         if (status == 0) {
-            if (mapToId[this.getY()][this.getX()] instanceof Oneal) {
-                this.updateStatus();
+            for (int i = BombermanGame.enemies.size() - 1; i >= 0; i--) {
+                if (this.intersects(BombermanGame.enemies.get(i))){
+                    this.updateStatus();
+                }
             }
-            mapToId[previousY][previousX] = null;
-            mapToId[this.getY()][this.getX()] = this;
-            previousX = this.getX();
-            previousY = this.getY();
         }
         if (status == 1) {
-            animate ++;
             if (animate == 1) {
                 MyAudioPlayer deadAudio = new MyAudioPlayer(MyAudioPlayer.DEAD);
                 deadAudio.play();
@@ -183,7 +154,6 @@ public class Bomber extends Entity {
             setImg(Sprite.movingSprite(Sprite.player_dead1, Sprite.player_dead2, Sprite.player_dead3, animate, 150).getFxImage());
             if (animate == 150) {
                 this.appear = false;
-                mapToId[this.getY()][this.getX()] = null;
             }
         }
     }

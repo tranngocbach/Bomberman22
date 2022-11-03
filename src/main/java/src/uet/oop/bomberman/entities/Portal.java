@@ -1,6 +1,7 @@
 package src.uet.oop.bomberman.entities;
 
 import javafx.scene.image.Image;
+import src.uet.oop.bomberman.BombermanGame;
 import src.uet.oop.bomberman.graphics.Sprite;
 
 public class Portal extends Entity{
@@ -11,6 +12,9 @@ public class Portal extends Entity{
     }
 
     @Override
-    public void update(Entity[][] mapToId) {
+    public void update() {
+        if (this.intersects(BombermanGame.bomberman) && BombermanGame.enemies.isEmpty()){
+            BombermanGame.load();
+        }
     }
 }

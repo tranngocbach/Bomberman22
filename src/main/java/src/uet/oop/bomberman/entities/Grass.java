@@ -10,7 +10,7 @@ public class Grass extends Entity {
     }
 
     @Override
-    public void update(Entity[][] mapToId) {
+    public void update() {
 
     }
 }

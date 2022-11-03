@@ -9,13 +9,15 @@ import src.uet.oop.bomberman.BombermanGame;
 import src.uet.oop.bomberman.audio.MyAudioPlayer;
 import src.uet.oop.bomberman.graphics.Sprite;
 
-public class Oneal extends Entity {
+public class kondoria extends Entity {
     List<Entity> entities;
     private int speed = Sprite.SCALED_SIZE / 32;
+    int playerX;
+    int playerY;
 
     int currentDirection ;
     List<Pair<Integer,Integer> > listMove = new ArrayList<>();
-    public Oneal(int x, int y, Image img) {
+    public kondoria(int x, int y, Image img) {
         super(x, y, img);
         previousX = x;
         previousY = y;
@@ -26,29 +28,10 @@ public class Oneal extends Entity {
         listMove.add(new Pair<>(1,0));
     }
 
-    int findGoodPathToPlayer() {
-        int min = Integer.MAX_VALUE;
-        int playerX = BombermanGame.bomberman.getX();
-        int playerY = BombermanGame.bomberman.getY();
-        for(int i = 0 ; i < 4; i++){
-            int x = Math.abs(this.getX() + listMove.get(i).getKey() - playerX);
-            int y = Math.abs(this.getY() + listMove.get(i).getValue() - playerY);
-            min = Math.min(min, x + y);
-        }
-        for(int i = 0 ; i < 4; i++){
-            int x = Math.abs(this.getX() + listMove.get(i).getKey() - playerX);
-            int y = Math.abs(this.getY() + listMove.get(i).getValue() - playerY);
-            if(x + y == min)
-            {
-                return i;
-            }
-        }
-        return 0;
-    }
     public boolean moveRight() {
-        setImg(Sprite.movingSprite(Sprite.oneal_right1
-                , Sprite.oneal_right2
-                , Sprite.oneal_right3
+        setImg(Sprite.movingSprite(Sprite.kondoria_right1
+                , Sprite.kondoria_right2
+                , Sprite.kondoria_right3
                 , animate
                 , 36).getFxImage());
         this.x = this.x + speed;
@@ -60,9 +43,9 @@ public class Oneal extends Entity {
     }
 
     public boolean moveLeft() {
-        setImg(Sprite.movingSprite(Sprite.oneal_left1
-                , Sprite.oneal_left2
-                , Sprite.oneal_left3
+        setImg(Sprite.movingSprite(Sprite.kondoria_left1
+                , Sprite.kondoria_left2
+                , Sprite.kondoria_left3
                 , animate
                 , 36).getFxImage());
         this.x = this.x - speed;
@@ -74,9 +57,9 @@ public class Oneal extends Entity {
     }
 
     public boolean moveUp() {
-        setImg(Sprite.movingSprite(Sprite.oneal_right1
-                , Sprite.oneal_right2
-                , Sprite.oneal_right3
+        setImg(Sprite.movingSprite(Sprite.kondoria_right1
+                , Sprite.kondoria_right2
+                , Sprite.kondoria_right3
                 , animate
                 , 36).getFxImage());
 
@@ -89,9 +72,9 @@ public class Oneal extends Entity {
     }
 
     public boolean moveDown() {
-        setImg(Sprite.movingSprite(Sprite.oneal_left1
-                , Sprite.oneal_left2
-                , Sprite.oneal_left3
+        setImg(Sprite.movingSprite(Sprite.kondoria_left1
+                , Sprite.kondoria_left2
+                , Sprite.kondoria_left3
                 , animate
                 , 36).getFxImage());
 
@@ -108,6 +91,9 @@ public class Oneal extends Entity {
         }
         for (int i = BombermanGame.entities.size() - 1; i >= 0; i--) {
             if (this.intersects(BombermanGame.entities.get(i)) && !BombermanGame.entities.get(i).canPass()) {
+                if(BombermanGame.entities.get(i) instanceof Brick) {
+                    continue;
+                }
                 return false;
             }
         }
@@ -121,7 +107,7 @@ public class Oneal extends Entity {
             Random generator = new Random();
 
             if (this.inCell()) {
-                currentDirection = findGoodPathToPlayer();
+                currentDirection = generator.nextInt(4);
             }
             switch (currentDirection) {
                 case 0: {
