@@ -2,13 +2,13 @@ package src.uet.oop.bomberman;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.Light;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import src.uet.oop.bomberman.audio.MyAudioPlayer;
 import src.uet.oop.bomberman.entities.Bomber;
@@ -19,12 +19,8 @@ import src.uet.oop.bomberman.entities.Wall;
 import src.uet.oop.bomberman.entities.*;
 import src.uet.oop.bomberman.graphics.Sprite;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
-import java.lang.reflect.Field;
 
 public class BombermanGame extends Application {
 
@@ -52,14 +48,16 @@ public class BombermanGame extends Application {
 
     static Scanner scanner;
 
-    public static MyAudioPlayer musicPlayer = new MyAudioPlayer(MyAudioPlayer.BACKGROUND_MUSIC);;
+    public static MyAudioPlayer musicPlayer = new MyAudioPlayer(MyAudioPlayer.BACKGROUND_MUSIC);
+    ;
+
     public MyAudioPlayer getMusicPlayer() {
         return musicPlayer;
     }
+
     public void setMusicPlayer(MyAudioPlayer _musicPlayer) {
         musicPlayer = _musicPlayer;
     }
-
 
 
     private static Set<KeyCode> pressedKeys = new HashSet<>();
@@ -121,9 +119,23 @@ public class BombermanGame extends Application {
         Application.launch(BombermanGame.class);
     }
 
+    private static Stage stg;
+
     @Override
-    public void start(Stage stage) {
-        musicPlayer.play();
+    public void start(Stage stage) throws IOException {
+            try {
+                stg = stage;
+                FXMLLoader loader = new FXMLLoader(new File("src\\main\\resources\\menu\\menu.fxml").toURI().toURL());
+                Parent root = loader.load();
+                stage.setTitle("Bomberman");
+                stage.setScene(new Scene(root, 714, 410));
+                stage.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    }
+
+    public void changeScene() {
         // Tao Canvas
         canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);
         gc = canvas.getGraphicsContext2D();
@@ -135,6 +147,10 @@ public class BombermanGame extends Application {
         // Tao scene
         Scene scene = new Scene(root);
 
+        // Them scene vao stage
+        stg.setScene(scene);
+        //stg.show();
+        musicPlayer.play();
         scene.setOnKeyReleased(keyEvent -> {
             pressedKeys.remove(keyEvent.getCode());
         });
@@ -143,12 +159,6 @@ public class BombermanGame extends Application {
             keyListen();
         });
 
-
-
-
-        // Them scene vao stage
-        stage.setScene(scene);
-        stage.show();
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -159,7 +169,7 @@ public class BombermanGame extends Application {
                     render();
                     update();
                 }
-                if(muted) {
+                if (muted) {
                     musicPlayer.stop();
                 } else {
                     musicPlayer.loop();
@@ -257,7 +267,7 @@ public class BombermanGame extends Application {
 
     private static void createMapFromFile() {
 
-        String filePath = "src\\main\\resources\\levels\\Level"+ Integer.toString(curLevel) +".txt";
+        String filePath = "src\\main\\resources\\levels\\Level" + Integer.toString(curLevel) + ".txt";
         try {
             File file = new File(filePath);
             FileReader fileReader = new FileReader(file);
@@ -342,10 +352,10 @@ public class BombermanGame extends Application {
             }
         }
         listQuery.clear();
-        for (int i = 0; i < entities.size(); i ++) {
+        for (int i = 0; i < entities.size(); i++) {
             entities.get(i).update();
         }
-        for (int i = 0; i < enemies.size(); i ++) {
+        for (int i = 0; i < enemies.size(); i++) {
             enemies.get(i).update();
         }
     }
@@ -358,10 +368,10 @@ public class BombermanGame extends Application {
     }
 
     public static void load() {
-        curLevel ++;
-        if(curLevel == 6)System.exit(0);
+        curLevel++;
+        if (curLevel == 6) System.exit(0);
         try {
-            scanner = new Scanner(new FileReader("src\\main\\resources\\levels\\Level"+ Integer.toString(1) +".txt"));
+            scanner = new Scanner(new FileReader("src\\main\\resources\\levels\\Level" + Integer.toString(1) + ".txt"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
