@@ -148,8 +148,10 @@ public class Bomber extends Entity {
         }
         if (status == 1) {
             if (animate == 1) {
-                MyAudioPlayer deadAudio = new MyAudioPlayer(MyAudioPlayer.DEAD);
-                deadAudio.play();
+//                MyAudioPlayer deadAudio = new MyAudioPlayer(MyAudioPlayer.DEAD);
+//                deadAudio.play();
+                MyAudioPlayer deadOneal = new MyAudioPlayer(MyAudioPlayer.ENEMY_DEAD);
+                deadOneal.play();
             }
             setImg(Sprite.movingSprite(Sprite.player_dead1, Sprite.player_dead2, Sprite.player_dead3, animate, 150).getFxImage());
             if (animate == 150) {

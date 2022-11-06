@@ -43,7 +43,7 @@ public class BombermanGame extends Application {
     public static Bomber bomberman;
 
     private boolean paused = false;
-    private boolean muted = false;
+    public static boolean muted = false;
     static Bomb bomb;
 
     static Scanner scanner;
@@ -61,6 +61,8 @@ public class BombermanGame extends Application {
 
 
     private static Set<KeyCode> pressedKeys = new HashSet<>();
+
+    private boolean checkEndgame = false;
 
 
     public void keyListen() {
@@ -136,6 +138,20 @@ public class BombermanGame extends Application {
     }
 
     public void changeScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(new File("src\\main\\resources\\menu\\gameover.fxml").toURI().toURL());
+            Parent root = loader.load();
+            stg.setScene(new Scene(root));
+            muted = true;
+            enemies.removeAll(enemies);
+            entities.removeAll(entities);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void changeSceneMenu() {
         // Tao Canvas
         canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);
         gc = canvas.getGraphicsContext2D();
@@ -179,6 +195,7 @@ public class BombermanGame extends Application {
         timer.start();
 
         load();
+        
     }
 
     public static void createMap() {
@@ -310,8 +327,10 @@ public class BombermanGame extends Application {
             }
             //System.out.print('\n');
         }*/
-        if (!bomberman.checkAppearance()) {
-            System.exit(0);
+        if (!bomberman.checkAppearance() && !checkEndgame) {
+            changeScene();
+            checkEndgame = true;
+            //System.exit(0);
         }
 
 

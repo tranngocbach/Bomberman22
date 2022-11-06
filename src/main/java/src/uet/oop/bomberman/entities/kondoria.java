@@ -131,8 +131,8 @@ public class kondoria extends Entity {
 
         if(status == 1){
             if (animate == 0) {
-                MyAudioPlayer deadOneal = new MyAudioPlayer(MyAudioPlayer.ENEMY_DEAD);
-                deadOneal.play();
+                MyAudioPlayer deadAudio = new MyAudioPlayer(MyAudioPlayer.DEAD);
+                deadAudio.play();
             }
             setImg(Sprite.movingSprite(Sprite.mob_dead1, Sprite.mob_dead2, Sprite.mob_dead3, animate, 150).getFxImage());
             animate += 1;
