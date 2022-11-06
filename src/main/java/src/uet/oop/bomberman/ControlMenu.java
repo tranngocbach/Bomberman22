@@ -12,6 +12,6 @@ public class ControlMenu {
 
     public void setButton(ActionEvent actionEvent) {
         BombermanGame bombermanGame = new BombermanGame();
-        bombermanGame.changeSceneMenu();
+        bombermanGame.changeScene();
     }
 }

@@ -26,9 +26,10 @@ public class BombermanGame extends Application {
 
     public static int WIDTH = 31;
     public static int HEIGHT = 13;
-    public static int numberOfBombs = 1;
 
     public static int curLevel = 0;
+    public static boolean paused;
+    public static boolean muted;
 
     private GraphicsContext gc;
     private Canvas canvas;
@@ -42,8 +43,6 @@ public class BombermanGame extends Application {
     public static Entity[][] mapToId = new Entity[100][100];
     public static Bomber bomberman;
 
-    private boolean paused = false;
-    public static boolean muted = false;
     static Bomb bomb;
 
     static Scanner scanner;
@@ -60,61 +59,8 @@ public class BombermanGame extends Application {
     }
 
 
-    private static Set<KeyCode> pressedKeys = new HashSet<>();
+    public static Set<KeyCode> pressedKeys = new HashSet<>();
 
-    private boolean checkEndgame = false;
-
-
-    public void keyListen() {
-        //System.out.println(pressedKeys.size());
-        if (!pressedKeys.isEmpty()) {
-            for (Iterator<KeyCode> it = pressedKeys.iterator(); it.hasNext(); ) {
-                //System.out.println(it.next());
-                switch (it.next()) {
-                    case RIGHT: {
-                        bomberman.moveRight(entities, mapToId);
-                        break;
-                    }
-                    case LEFT: {
-                        bomberman.moveLeft(entities, mapToId);
-                        break;
-                    }
-                    case UP: {
-                        bomberman.moveUp(entities, mapToId);
-                        break;
-                    }
-                    case DOWN: {
-                        bomberman.moveDown(entities, mapToId);
-                        break;
-                    }
-                    case SPACE: {
-                        if (numberOfBombs > 0) {
-                            bomb = bomberman.placeBomb();
-                            entities.add(bomb);
-                            numberOfBombs--;
-                        }
-                        break;
-                    }
-                    case K: {
-                        if (paused) {
-                            paused = false;
-                        } else {
-                            paused = true;
-                        }
-                        break;
-                    }
-                    case M: {
-                        if (muted) {
-                            muted = false;
-                        } else {
-                            muted = true;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
 
 
     public static void main(String[] args) {
@@ -137,21 +83,8 @@ public class BombermanGame extends Application {
             }
     }
 
+
     public void changeScene() {
-        try {
-            FXMLLoader loader = new FXMLLoader(new File("src\\main\\resources\\menu\\gameover.fxml").toURI().toURL());
-            Parent root = loader.load();
-            stg.setScene(new Scene(root));
-            muted = true;
-            enemies.removeAll(enemies);
-            entities.removeAll(entities);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void changeSceneMenu() {
         // Tao Canvas
         canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);
         gc = canvas.getGraphicsContext2D();
@@ -172,7 +105,24 @@ public class BombermanGame extends Application {
         });
         scene.setOnKeyPressed(keyEvent -> {
             pressedKeys.add(keyEvent.getCode());
-            keyListen();
+            switch (keyEvent.getCode()) {
+                case K: {
+                    if (paused) {
+                        paused = false;
+                    } else {
+                        paused = true;
+                    }
+                    break;
+                }
+                case M: {
+                    if (muted) {
+                        muted = false;
+                    } else {
+                        muted = true;
+                    }
+                    break;
+                }
+            }
         });
 
 
@@ -195,7 +145,6 @@ public class BombermanGame extends Application {
         timer.start();
 
         load();
-        
     }
 
     public static void createMap() {
@@ -327,10 +276,8 @@ public class BombermanGame extends Application {
             }
             //System.out.print('\n');
         }*/
-        if (!bomberman.checkAppearance() && !checkEndgame) {
-            changeScene();
-            checkEndgame = true;
-            //System.exit(0);
+        if (!bomberman.checkAppearance()) {
+            System.exit(0);
         }
 
 

@@ -17,8 +17,6 @@ public class Balloom extends Entity {
     List<Pair<Integer,Integer> > listMove = new ArrayList<>();
     public Balloom(int x, int y, Image img) {
         super(x, y, img);
-        previousX = x;
-        previousY = y;
         passable = true;
         listMove.add(new Pair<>(0,-1));
         listMove.add(new Pair<>(-1,0));

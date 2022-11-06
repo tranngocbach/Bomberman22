@@ -14,37 +14,11 @@ public class Oneal extends Entity {
     private int speed = Sprite.SCALED_SIZE / 32;
 
     int currentDirection ;
-    List<Pair<Integer,Integer> > listMove = new ArrayList<>();
     public Oneal(int x, int y, Image img) {
         super(x, y, img);
-        previousX = x;
-        previousY = y;
         passable = true;
-        listMove.add(new Pair<>(0,-1));
-        listMove.add(new Pair<>(-1,0));
-        listMove.add(new Pair<>(0,1));
-        listMove.add(new Pair<>(1,0));
     }
 
-    int findGoodPathToPlayer() {
-        int min = Integer.MAX_VALUE;
-        int playerX = BombermanGame.bomberman.getX();
-        int playerY = BombermanGame.bomberman.getY();
-        for(int i = 0 ; i < 4; i++){
-            int x = Math.abs(this.getX() + listMove.get(i).getKey() - playerX);
-            int y = Math.abs(this.getY() + listMove.get(i).getValue() - playerY);
-            min = Math.min(min, x + y);
-        }
-        for(int i = 0 ; i < 4; i++){
-            int x = Math.abs(this.getX() + listMove.get(i).getKey() - playerX);
-            int y = Math.abs(this.getY() + listMove.get(i).getValue() - playerY);
-            if(x + y == min)
-            {
-                return i;
-            }
-        }
-        return 0;
-    }
     public boolean moveRight() {
         setImg(Sprite.movingSprite(Sprite.oneal_right1
                 , Sprite.oneal_right2
@@ -121,7 +95,22 @@ public class Oneal extends Entity {
             Random generator = new Random();
 
             if (this.inCell()) {
-                currentDirection = findGoodPathToPlayer();
+                int nextDirection = new BFS(BombermanGame.mapMatrix
+                        ,this.getX()
+                        ,this.getY()
+                        ,BombermanGame.bomberman.getX()
+                        ,BombermanGame.bomberman.getY()).nextDirection;
+
+                if(nextDirection != -1)
+                {
+                    speed = Sprite.SCALED_SIZE / 16;
+                    currentDirection = nextDirection;
+                }
+                else
+                {
+                    speed = Sprite.SCALED_SIZE / 32;
+                    currentDirection = generator.nextInt(4);
+                }
             }
             switch (currentDirection) {
                 case 0: {
@@ -145,8 +134,8 @@ public class Oneal extends Entity {
 
         if(status == 1){
             if (animate == 0) {
-                MyAudioPlayer deadAudio = new MyAudioPlayer(MyAudioPlayer.DEAD);
-                deadAudio.play();
+                MyAudioPlayer deadOneal = new MyAudioPlayer(MyAudioPlayer.ENEMY_DEAD);
+                deadOneal.play();
             }
             setImg(Sprite.movingSprite(Sprite.mob_dead1, Sprite.mob_dead2, Sprite.mob_dead3, animate, 150).getFxImage());
             animate += 1;

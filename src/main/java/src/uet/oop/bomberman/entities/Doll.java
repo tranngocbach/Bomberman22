@@ -20,8 +20,6 @@ public class Doll extends Entity {
     List<Pair<Integer,Integer> > listMove = new ArrayList<>();
     public Doll(int x, int y, Image img) {
         super(x, y, img);
-        previousX = x;
-        previousY = y;
         passable = true;
         listMove.add(new Pair<>(0,-1));
         listMove.add(new Pair<>(-1,0));
@@ -141,8 +139,8 @@ public class Doll extends Entity {
 
         if(status == 1){
             if (animate == 0) {
-                MyAudioPlayer deadAudio = new MyAudioPlayer(MyAudioPlayer.DEAD);
-                deadAudio.play();
+                MyAudioPlayer deaddoll = new MyAudioPlayer(MyAudioPlayer.ENEMY_DEAD);
+                deaddoll.play();
             }
             setImg(Sprite.movingSprite(Sprite.mob_dead1, Sprite.mob_dead2, Sprite.mob_dead3, animate, 150).getFxImage());
             animate += 1;

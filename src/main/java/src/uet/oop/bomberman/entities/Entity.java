@@ -23,8 +23,6 @@ public abstract class Entity {
     protected boolean destroyable;
 
     protected int status;
-    protected int previousX;
-    protected int previousY;
 
     public Entity(){}
     //Khởi tạo đối tượng, chuyển từ tọa độ đơn vị sang tọa độ trong canvas
@@ -89,7 +87,6 @@ public abstract class Entity {
 
     public boolean inCell()
     {
-
         return (this.getX() * Sprite.SCALED_SIZE == x)
                 &&(this.getY() * Sprite.SCALED_SIZE == y);
     }

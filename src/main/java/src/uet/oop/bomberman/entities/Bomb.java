@@ -115,7 +115,7 @@ public class Bomb extends Entity{
             setImg(Sprite.movingSprite(Sprite.bomb_exploded, Sprite.bomb_exploded1, Sprite.bomb_exploded2, animate, 30).getFxImage());
             animate += 1;
             if (animate == 50) {
-                BombermanGame.numberOfBombs ++;
+                BombermanGame.bomberman.numberOfBombs ++;
                 this.appear = false;
             }
         }

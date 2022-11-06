@@ -1,36 +1,81 @@
 package src.uet.oop.bomberman.entities;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import src.uet.oop.bomberman.audio.MyAudioPlayer;
 import src.uet.oop.bomberman.graphics.Sprite;
 import src.uet.oop.bomberman.BombermanGame;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
 public class Bomber extends Entity {
-    public int speed = Sprite.SCALED_SIZE / 4;
+    public int speed = Sprite.SCALED_SIZE / 32;
 
+    public static int numberOfBombs = 1;
     private boolean chuaRaKhoiBomb = false;
 
     public int explodeDistance;
 
     public Bomber(int x, int y, Image img) {
         super(x, y, img);
-        this.previousX = x;
-        this.previousY = y;
         this.explodeDistance = 1;
         this.passable = true;
     }
 
-    private boolean roundByXAndMove(List<Entity> entities) {
-        if (checkIntersect(entities)) {
+    public Rectangle2D getBoundary() {
+        return new Rectangle2D(x, y, 28, 28);
+    }
+
+    public boolean intersects(Entity e) {
+        return e.getBoundary().intersects(this.getBoundary());
+    }
+
+    public void keyListen() {
+        //System.out.println(pressedKeys.size());
+        if (!BombermanGame.pressedKeys.isEmpty()) {
+            for (Iterator<KeyCode> it = BombermanGame.pressedKeys.iterator(); it.hasNext(); ) {
+                //System.out.println(it.next());
+                switch (it.next()) {
+                    case RIGHT: {
+                        moveRight();
+                        break;
+                    }
+                    case LEFT: {
+                        moveLeft();
+                        break;
+                    }
+                    case UP: {
+                        moveUp();
+                        break;
+                    }
+                    case DOWN: {
+                        moveDown();
+                        break;
+                    }
+                    case SPACE: {
+                        if (numberOfBombs > 0) {
+                            Bomb bomb = placeBomb();
+                            BombermanGame.entities.add(bomb);
+                            numberOfBombs--;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean roundByXAndMove() {
+        if (checkIntersect()) {
             return true;
         }
 
         for (int dif = -4; dif <= 4; dif += 4) {
             this.x += dif;
-            if (checkIntersect(entities)) {
+            if (checkIntersect()) {
                 return true;
             }
             this.x -= dif;
@@ -38,13 +83,13 @@ public class Bomber extends Entity {
         return false;
     }
 
-    private boolean roundByYAndMove(List<Entity> entities) {
-        if (checkIntersect(entities)) {
+    private boolean roundByYAndMove() {
+        if (checkIntersect()) {
             return true;
         }
         for (int dif = -4; dif <= 4; dif += 4) {
             this.y += dif;
-            if (checkIntersect(entities)) {
+            if (checkIntersect()) {
                 return true;
             }
             this.y -= dif;
@@ -52,32 +97,32 @@ public class Bomber extends Entity {
         return false;
     }
 
-    public void moveRight(List<Entity> entities, Entity mapToId[][]) {
+    public void moveRight() {
         setImg(Sprite.movingSprite(Sprite.player_right
                 , Sprite.player_right_1
                 , Sprite.player_right_2
                 , animate
                 , 36).getFxImage());
         this.x = this.x + speed;
-        if (!roundByYAndMove(entities)) {
+        if (!roundByYAndMove()) {
             this.x -= speed;
         }
     }
 
-    public void moveLeft(List<Entity> entities, Entity mapToId[][]) {
+    public void moveLeft() {
         setImg(Sprite.movingSprite(Sprite.player_left
                 , Sprite.player_left_1
                 , Sprite.player_left_2
                 , animate
                 , 36).getFxImage());
         this.x = this.x - speed;
-        if (!roundByYAndMove(entities)) {
+        if (!roundByYAndMove()) {
             this.x += speed;
         }
 
     }
 
-    public void moveUp(List<Entity> entities, Entity mapToId[][]) {
+    public void moveUp() {
         setImg(Sprite.movingSprite(Sprite.player_up
                 , Sprite.player_up_1
                 , Sprite.player_up_2
@@ -85,13 +130,13 @@ public class Bomber extends Entity {
                 , 36).getFxImage());
 
         this.y = this.y - speed;
-        if (!roundByXAndMove(entities)) {
+        if (!roundByXAndMove()) {
             this.y += speed;
         }
 
     }
 
-    public void moveDown(List<Entity> entities, Entity mapToId[][]) {
+    public void moveDown() {
         setImg(Sprite.movingSprite(Sprite.player_down
                 , Sprite.player_down_1
                 , Sprite.player_down_2
@@ -99,18 +144,18 @@ public class Bomber extends Entity {
                 , 36).getFxImage());
 
         this.y = this.y + speed;
-        if (!roundByXAndMove(entities)) {
+        if (!roundByXAndMove()) {
             this.y -= speed;
         }
     }
 
-    private boolean checkIntersect(List<Entity> entities) {
+    private boolean checkIntersect() {
         if (this.getStatus() == 1) {
             return false;
         }
         boolean flag = true;
-        for (int i = entities.size() - 1; i >= 0; i--) {
-            if (this.intersects(entities.get(i)) && entities.get(i) instanceof Bomb) {
+        for (int i = BombermanGame.entities.size() - 1; i >= 0; i--) {
+            if (this.intersects(BombermanGame.entities.get(i)) && BombermanGame.entities.get(i) instanceof Bomb) {
                 if (this.chuaRaKhoiBomb) {
                     flag = false;
                     continue;
@@ -118,7 +163,7 @@ public class Bomber extends Entity {
                     return false;
                 }
             }
-            if (this.intersects(entities.get(i)) && !entities.get(i).canPass()) {
+            if (this.intersects(BombermanGame.entities.get(i)) && !BombermanGame.entities.get(i).canPass()) {
                 return false;
             }
         }
@@ -139,6 +184,7 @@ public class Bomber extends Entity {
     @Override
     public void update() {
         animate ++;
+        keyListen();
         if (status == 0) {
             for (int i = BombermanGame.enemies.size() - 1; i >= 0; i--) {
                 if (this.intersects(BombermanGame.enemies.get(i))){
@@ -148,10 +194,8 @@ public class Bomber extends Entity {
         }
         if (status == 1) {
             if (animate == 1) {
-//                MyAudioPlayer deadAudio = new MyAudioPlayer(MyAudioPlayer.DEAD);
-//                deadAudio.play();
-                MyAudioPlayer deadOneal = new MyAudioPlayer(MyAudioPlayer.ENEMY_DEAD);
-                deadOneal.play();
+                MyAudioPlayer deadAudio = new MyAudioPlayer(MyAudioPlayer.DEAD);
+                deadAudio.play();
             }
             setImg(Sprite.movingSprite(Sprite.player_dead1, Sprite.player_dead2, Sprite.player_dead3, animate, 150).getFxImage());
             if (animate == 150) {
