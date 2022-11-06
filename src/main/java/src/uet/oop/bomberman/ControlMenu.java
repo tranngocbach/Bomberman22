@@ -1,5 +1,6 @@
 package src.uet.oop.bomberman;
 
+import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.event.ActionEvent;
@@ -12,6 +13,10 @@ public class ControlMenu {
 
     public void setButton(ActionEvent actionEvent) {
         BombermanGame bombermanGame = new BombermanGame();
-        bombermanGame.changeScene();
+        bombermanGame.changeSceneMenu();
+
+    }
+    public static void main(String[] args) {
+        Application.launch(BombermanGame.class);
     }
 }

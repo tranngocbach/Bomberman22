@@ -177,7 +177,7 @@ public class Bomber extends Entity {
         MyAudioPlayer placeSound = new MyAudioPlayer(MyAudioPlayer.PLACE_BOMB);
         placeSound.play();
         chuaRaKhoiBomb = true;
-        return new Bomb(this.x / Sprite.SCALED_SIZE, this.y / Sprite.SCALED_SIZE, explodeDistance, Sprite.bomb.getFxImage());
+        return new Bomb(this.x / Sprite.SCALED_SIZE, this.y / Sprite.SCALED_SIZE, explodeDistance, true,Sprite.bomb.getFxImage());
     }
 
 

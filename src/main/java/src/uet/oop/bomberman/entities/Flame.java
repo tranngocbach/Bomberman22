@@ -102,7 +102,7 @@ public class Flame extends Entity {
         }
 
         animate += 1;
-        if (animate == 50) {
+        if (animate == 25) {
             this.appear = false;
         }
     }

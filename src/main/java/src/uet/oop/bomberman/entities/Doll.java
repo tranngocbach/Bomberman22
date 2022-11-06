@@ -102,7 +102,7 @@ public class Doll extends Entity {
     public Bomb placeBomb() {
         MyAudioPlayer placeSound = new MyAudioPlayer(MyAudioPlayer.PLACE_BOMB);
         placeSound.play();
-        return new Bomb(this.x / Sprite.SCALED_SIZE, this.y / Sprite.SCALED_SIZE, 1, Sprite.bomb.getFxImage());
+        return new Bomb(this.x / Sprite.SCALED_SIZE, this.y / Sprite.SCALED_SIZE, 1, false, Sprite.bomb.getFxImage());
     }
 
     @Override

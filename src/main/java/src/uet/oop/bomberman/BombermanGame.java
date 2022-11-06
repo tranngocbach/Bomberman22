@@ -20,6 +20,8 @@ import src.uet.oop.bomberman.entities.*;
 import src.uet.oop.bomberman.graphics.Sprite;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class BombermanGame extends Application {
@@ -61,31 +63,43 @@ public class BombermanGame extends Application {
 
     public static Set<KeyCode> pressedKeys = new HashSet<>();
 
+    private boolean checkEndgame = false;
 
-
-    public static void main(String[] args) {
-        Application.launch(BombermanGame.class);
-    }
 
     private static Stage stg;
 
     @Override
     public void start(Stage stage) throws IOException {
-            try {
-                stg = stage;
-                FXMLLoader loader = new FXMLLoader(new File("src\\main\\resources\\menu\\menu.fxml").toURI().toURL());
-                Parent root = loader.load();
-                stage.setTitle("Bomberman");
-                stage.setScene(new Scene(root, 714, 410));
-                stage.show();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            stg = stage;
+            FXMLLoader loader = new FXMLLoader(new File("src\\main\\resources\\menu\\menu.fxml").toURI().toURL());
+            Parent root = loader.load();
+            stage.setTitle("Bomberman");
+            stage.setScene(new Scene(root, 714, 410));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+    public void changeScene() {        //gameover
+        try {
+            FXMLLoader loader = new FXMLLoader(new File("src\\main\\resources\\menu\\gameover.fxml").toURI().toURL());
+            Parent root = loader.load();
+            stg.setScene(new Scene(root));
+            muted = true;
+            enemies.clear();
+            entities.clear();
+            pressedKeys.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    public void changeScene() {
+    public void changeSceneMenu() {         //map game
         // Tao Canvas
+        checkEndgame = false;
+
         canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);
         gc = canvas.getGraphicsContext2D();
 
@@ -127,18 +141,33 @@ public class BombermanGame extends Application {
 
 
         AnimationTimer timer = new AnimationTimer() {
+
+
             @Override
             public void handle(long l) {
-                if (paused) {
-                    //halted
-                } else {
-                    render();
-                    update();
-                }
-                if (muted) {
-                    musicPlayer.stop();
-                } else {
-                    musicPlayer.loop();
+                LocalDateTime start = LocalDateTime.now();
+                LocalDateTime stop = LocalDateTime.now();
+
+                while (true) {
+                    stop = LocalDateTime.now();
+                    long delay = Duration.between(start, stop).toMillis();
+                    if (delay < 16) {
+                        continue;
+                    }
+                    if (paused) {
+                        //halted
+                    } else {
+
+                        render();
+                        update();
+
+                    }
+                    if (muted) {
+                        musicPlayer.stop();
+                    } else {
+                        musicPlayer.loop();
+                    }
+                    break;
                 }
             }
         };
@@ -276,8 +305,11 @@ public class BombermanGame extends Application {
             }
             //System.out.print('\n');
         }*/
-        if (!bomberman.checkAppearance()) {
-            System.exit(0);
+        if (!bomberman.checkAppearance() && !checkEndgame) {
+            changeScene();
+            curLevel--;
+            checkEndgame = true;
+            //System.exit(0);
         }
 
 

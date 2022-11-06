@@ -11,9 +11,12 @@ import java.util.List;
 public class Bomb extends Entity{
     int distance;
 
-    public Bomb(int xUnit, int yUnit, int distance, Image img) {
+    boolean isPlayerBomb;
+
+    public Bomb(int xUnit, int yUnit, int distance,boolean isPlayerBomb , Image img) {
         super(xUnit, yUnit, img);
         this.distance = distance;
+        this.isPlayerBomb = isPlayerBomb;
     }
 
     public List<Query> explode(char[][] map, Entity[][] mapToId, int direction) {
@@ -114,8 +117,8 @@ public class Bomb extends Entity{
             }
             setImg(Sprite.movingSprite(Sprite.bomb_exploded, Sprite.bomb_exploded1, Sprite.bomb_exploded2, animate, 30).getFxImage());
             animate += 1;
-            if (animate == 50) {
-                BombermanGame.bomberman.numberOfBombs ++;
+            if (animate == 25) {
+                if(isPlayerBomb)BombermanGame.bomberman.numberOfBombs ++;
                 this.appear = false;
             }
         }
