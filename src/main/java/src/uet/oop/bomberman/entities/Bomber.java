@@ -22,6 +22,7 @@ public class Bomber extends Entity {
     public Bomber(int x, int y, Image img) {
         super(x, y, img);
         this.explodeDistance = 1;
+        numberOfBombs = 1;
         this.passable = true;
     }
 

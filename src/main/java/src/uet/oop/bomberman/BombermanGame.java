@@ -22,6 +22,7 @@ import src.uet.oop.bomberman.graphics.Sprite;
 import java.io.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 public class BombermanGame extends Application {
@@ -29,9 +30,9 @@ public class BombermanGame extends Application {
     public static int WIDTH = 31;
     public static int HEIGHT = 13;
 
-    public static int curLevel = 0;
-    public static boolean paused;
-    public static boolean muted;
+    public static int curLevel = 1;
+    public static boolean paused = false;
+    public static boolean muted = false;
 
     private GraphicsContext gc;
     private Canvas canvas;
@@ -44,8 +45,6 @@ public class BombermanGame extends Application {
 
     public static Entity[][] mapToId = new Entity[100][100];
     public static Bomber bomberman;
-
-    static Bomb bomb;
 
     static Scanner scanner;
 
@@ -96,6 +95,32 @@ public class BombermanGame extends Application {
         }
     }
 
+
+    static long lastFrame = 0;
+
+    static AnimationTimer timer;
+    private void addLoop() {
+        timer = (new AnimationTimer() {
+            static int t = 0;
+            @Override
+            public void handle(long l) {
+                if (paused) {
+                    //halted
+                } else {
+                    render();
+                    update();
+                }
+                if (muted) {
+                    musicPlayer.stop();
+                } else {
+                    musicPlayer.loop();
+                }
+                lastFrame = l;
+            }
+        });
+
+        timer.start();
+    }
     public void changeSceneMenu() {         //map game
         // Tao Canvas
         checkEndgame = false;
@@ -139,41 +164,9 @@ public class BombermanGame extends Application {
             }
         });
 
-
-        AnimationTimer timer = new AnimationTimer() {
-
-
-            @Override
-            public void handle(long l) {
-                LocalDateTime start = LocalDateTime.now();
-                LocalDateTime stop = LocalDateTime.now();
-
-                while (true) {
-                    stop = LocalDateTime.now();
-                    long delay = Duration.between(start, stop).toMillis();
-                    if (delay < 16) {
-                        continue;
-                    }
-                    if (paused) {
-                        //halted
-                    } else {
-
-                        render();
-                        update();
-
-                    }
-                    if (muted) {
-                        musicPlayer.stop();
-                    } else {
-                        musicPlayer.loop();
-                    }
-                    break;
-                }
-            }
-        };
-        timer.start();
-
         load();
+
+        addLoop();
     }
 
     public static void createMap() {
@@ -305,12 +298,7 @@ public class BombermanGame extends Application {
             }
             //System.out.print('\n');
         }*/
-        if (!bomberman.checkAppearance() && !checkEndgame) {
-            changeScene();
-            curLevel--;
-            checkEndgame = true;
-            //System.exit(0);
-        }
+
 
 
         for (int i = 0; i < enemies.size(); i++) {
@@ -356,28 +344,38 @@ public class BombermanGame extends Application {
         for (int i = 0; i < enemies.size(); i++) {
             enemies.get(i).update();
         }
+
+        if (!bomberman.checkAppearance() && !checkEndgame) {
+            changeScene();
+            checkEndgame = true;
+            //System.exit(0);
+        }
     }
 
     public void render() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        stillObjects.forEach(g -> g.render(gc));
-        entities.forEach(g -> g.render(gc));
-        enemies.forEach(g -> g.render(gc));
+        for (int i = 0; i < entities.size(); i++) {
+            entities.get(i).render(gc);
+        }
+        for (int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).render(gc);
+        }
     }
 
     public static void load() {
-        curLevel++;
         if (curLevel == 6) System.exit(0);
         try {
-            scanner = new Scanner(new FileReader("src\\main\\resources\\levels\\Level" + Integer.toString(1) + ".txt"));
+            scanner = new Scanner(new FileReader("src\\main\\resources\\levels\\Level" + Integer.toString(curLevel) + ".txt"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         scanner.nextInt();
         HEIGHT = scanner.nextInt();
         WIDTH = scanner.nextInt();
-        enemies.removeAll(enemies);
-        entities.removeAll(entities);
+        enemies.clear();
+        entities.clear();
+        pressedKeys.clear();
+
 
         scanner.nextLine();
         createMap();

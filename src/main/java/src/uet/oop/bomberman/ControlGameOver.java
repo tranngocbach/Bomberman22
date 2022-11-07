@@ -11,6 +11,7 @@ public class ControlGameOver {
     public void restartGame(ActionEvent actionEvent) {
         BombermanGame bombermanGame = new BombermanGame();
         BombermanGame.muted = false;
+        if(BombermanGame.timer != null)BombermanGame.timer.stop();
         bombermanGame.changeSceneMenu();
     }
 

@@ -14,6 +14,7 @@ public class Portal extends Entity{
     @Override
     public void update() {
         if (this.intersects(BombermanGame.bomberman) && BombermanGame.enemies.isEmpty()){
+            BombermanGame.curLevel++;
             BombermanGame.load();
         }
     }

@@ -21,7 +21,7 @@ public class Bomb extends Entity{
 
     public List<Query> explode(char[][] map, Entity[][] mapToId, int direction) {
         if (this.intersects(BombermanGame.bomberman)){
-            //BombermanGame.bomberman.updateStatus();
+            BombermanGame.bomberman.updateStatus();
         }
 
         List<Query> l = new ArrayList<>();

@@ -12,7 +12,7 @@ public class BombItem extends Entity {
     @Override
     public void update() {
         if (this.intersects(BombermanGame.bomberman)){
-            Bomber.numberOfBombs ++;
+            BombermanGame.bomberman.numberOfBombs ++;
             this.destroy();
         }
     }

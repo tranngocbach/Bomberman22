@@ -100,8 +100,6 @@ public class Balloom extends Entity {
         if(status == 0){
             Random generator = new Random();
 
-
-
             //System.out.println(currentDirection);
             if(this.inCell()) {
                 currentDirection = generator.nextInt(4);
