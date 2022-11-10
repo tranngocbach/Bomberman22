@@ -1,6 +1,8 @@
 package src.uet.oop.bomberman.entities;
 
 import javafx.geometry.Rectangle2D;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import src.uet.oop.bomberman.audio.MyAudioPlayer;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Bomber extends Entity {
+    private Canvas camera;
     public int speed = Sprite.SCALED_SIZE / 32;
 
     public static int numberOfBombs = 1;
@@ -59,8 +62,16 @@ public class Bomber extends Entity {
                     case SPACE: {
                         if (numberOfBombs > 0) {
                             Bomb bomb = placeBomb();
-                            BombermanGame.entities.add(bomb);
-                            numberOfBombs--;
+                            int flag = 0;
+                            for (int i = BombermanGame.entities.size() - 1; i >= 0; i--) {
+                                if (BombermanGame.entities.get(i) instanceof Bomb && this.intersects(BombermanGame.entities.get(i))){
+                                    flag = 1;
+                                }
+                            }
+                            if(flag == 0) {
+                                BombermanGame.entities.add(bomb);
+                                numberOfBombs--;
+                            }
                         }
                         break;
                     }
@@ -184,6 +195,16 @@ public class Bomber extends Entity {
 
     @Override
     public void update() {
+        camera = BombermanGame.gccanvas;
+        double limitRight = camera.getWidth() - (416 / 2) / BombermanGame.ZOOM;
+        if (x + 12 > (416 / 2) / BombermanGame.ZOOM && x + 12 <= limitRight) {
+            camera.setLayoutX(- (x + 12 - (416 / 2) / BombermanGame.ZOOM) * BombermanGame.ZOOM);
+        } else if (x + 12 <= (416 / 2) / BombermanGame.ZOOM) {
+            camera.setLayoutX(0);
+        } else {
+            camera.setLayoutX((BombermanGame.WIDTH - camera.getWidth() * BombermanGame.ZOOM));
+        }
+
         animate ++;
         keyListen();
         if (status == 0) {

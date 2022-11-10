@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
+import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import src.uet.oop.bomberman.audio.MyAudioPlayer;
 import src.uet.oop.bomberman.entities.Bomber;
@@ -25,7 +26,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
-public class BombermanGame extends Application {
+public class BombermanGame {
 
     public static int WIDTH = 31;
     public static int HEIGHT = 13;
@@ -64,24 +65,40 @@ public class BombermanGame extends Application {
 
     private boolean checkEndgame = false;
 
+    private Info info;
+    private int Score;
+    private int Fps;
+    private int Life;
+    private int Time;
 
-    private static Stage stg;
+    public static double ZOOM;
 
-    @Override
-    public void start(Stage stage) throws IOException {
-        try {
-            stg = stage;
-            FXMLLoader loader = new FXMLLoader(new File("src\\main\\resources\\menu\\menu.fxml").toURI().toURL());
-            Parent root = loader.load();
-            stage.setTitle("Bomberman");
-            stage.setScene(new Scene(root, 714, 410));
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static Canvas gccanvas;
+
+
+
+    public BombermanGame (){
+        Time = 100;
+        Score = 0;
+        Life = 3;
+        ZOOM = 1.75;
     }
 
-    public void changeScene() {        //gameover
+    private static void addScale(GraphicsContext gc,double ZOOM) {
+        Scale scale = new Scale();
+        scale.setPivotY(0);
+        scale.setPivotX(0);
+        scale.setX(ZOOM);
+        scale.setY(ZOOM);
+        gc.getCanvas().getTransforms().clear();
+        gc.getCanvas().getTransforms().add(scale);
+        Canvas canvas = gc.getCanvas();
+        LoadGame.mainStage.setWidth(416 * 1.2 * ZOOM);
+        LoadGame.mainStage.setHeight(416 * ZOOM + 37);
+        LoadGame.mainStage.centerOnScreen();
+    }
+
+   /* public void changeScene() {        //gameover
         try {
             FXMLLoader loader = new FXMLLoader(new File("src\\main\\resources\\menu\\gameover.fxml").toURI().toURL());
             Parent root = loader.load();
@@ -93,35 +110,49 @@ public class BombermanGame extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 
-    static long lastFrame = 0;
 
     static AnimationTimer timer;
     private void addLoop() {
+
         timer = (new AnimationTimer() {
-            static int t = 0;
+
+            private LocalTime startGameTime = LocalTime.now();
+            private LocalTime start = LocalTime.now();
+            private LocalTime stop = LocalTime.now();
+            private int t = 0;
             @Override
             public void handle(long l) {
+                t++;
+                stop = LocalTime.now();
+                if (Duration.between(start, stop).toMillis() > 1000)
+                {
+                    start = stop;
+                    Fps = t;
+                    t = 0;
+                    Time = Integer.max(0,Time - 1);
+                    //System.out.println((int)Duration.between(startGameTime,stop).getSeconds());
+                }
                 if (paused) {
                     //halted
                 } else {
-                    render();
                     update();
+                    render();
                 }
                 if (muted) {
                     musicPlayer.stop();
                 } else {
                     musicPlayer.loop();
                 }
-                lastFrame = l;
             }
         });
 
         timer.start();
     }
     public void changeSceneMenu() {         //map game
+
         // Tao Canvas
         checkEndgame = false;
 
@@ -135,9 +166,10 @@ public class BombermanGame extends Application {
         // Tao scene
         Scene scene = new Scene(root);
 
-        // Them scene vao stage
-        stg.setScene(scene);
-        //stg.show();
+
+        LoadGame.mainStage.setScene(scene);
+        LoadGame.mainStage.show();
+
         musicPlayer.play();
         scene.setOnKeyReleased(keyEvent -> {
             pressedKeys.remove(keyEvent.getCode());
@@ -163,6 +195,7 @@ public class BombermanGame extends Application {
                 }
             }
         });
+
 
         load();
 
@@ -299,10 +332,12 @@ public class BombermanGame extends Application {
             //System.out.print('\n');
         }*/
 
+        gccanvas = gc.getCanvas();
 
 
         for (int i = 0; i < enemies.size(); i++) {
             if (!enemies.get(i).checkAppearance()) {
+                Score += 100;
                 listQuery.add(new Query("remove", enemies.get(i)));
             }
         }
@@ -345,21 +380,40 @@ public class BombermanGame extends Application {
             enemies.get(i).update();
         }
 
-        if (!bomberman.checkAppearance() && !checkEndgame) {
-            changeScene();
-            checkEndgame = true;
+        info = new Info(Bomber.numberOfBombs,Score,Time,Life,Fps);
+
+        if (!bomberman.checkAppearance() || Time == 0) {
+            if(Life == 0)
+            {
+                timer.stop();
+                Menu menu = new Menu();
+            }
+            else
+            {
+                Life--;
+                Time = 100;
+                load();
+            }
+            //changeScene();
+            //checkEndgame = true;
             //System.exit(0);
         }
     }
 
     public void render() {
+
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+
+
         for (int i = 0; i < entities.size(); i++) {
             entities.get(i).render(gc);
         }
         for (int i = 0; i < enemies.size(); i++) {
             enemies.get(i).render(gc);
         }
+        info.draw(gc);
+        addScale(gc,1.75);
     }
 
     public static void load() {
