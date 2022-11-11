@@ -13,7 +13,17 @@
             <Image url="@../menuIMG/maxresdefault.jpg" />
          </image>
       </ImageView>
-      <Button fx:id="button" layoutX="110.0" layoutY="531.0" mnemonicParsing="false" onAction="#setButton" prefHeight="38.0" prefWidth="94.0" style="-fx-background-color: #ffc900;" text="Play game!">
+      <Button fx:id="button" layoutX="403.0" layoutY="480.0" mnemonicParsing="false" onAction="#setButton" prefHeight="27.0" prefWidth="94.0" text="Play game!">
+         <font>
+            <Font name="Algerian" size="12.0" />
+         </font>
+      </Button>
+      <Button fx:id="guide" layoutX="403.0" layoutY="514.0" mnemonicParsing="false" onAction="#openGuide" prefHeight="27.0" prefWidth="94.0" text="Guide">
+      <font>
+         <Font name="Algerian" size="12.0" />
+      </font>
+      </Button>
+      <Button fx:id="exit" layoutX="403.0" layoutY="548.0" mnemonicParsing="false" onAction="#Exit" prefHeight="27.0" prefWidth="94.0" text="Exit">
          <font>
             <Font name="Algerian" size="12.0" />
          </font>
