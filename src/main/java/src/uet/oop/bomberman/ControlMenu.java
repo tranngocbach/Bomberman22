@@ -24,10 +24,11 @@ public class ControlMenu {
     }
 
     public void openGuide(ActionEvent actionEvent) {
-        System.out.println("OK");
+        Guide g = new Guide();
+        g.draw();
     }
 
     public void Exit(ActionEvent actionEvent) {
-        System.out.println("OK");
+        System.exit(0);
     }
 }

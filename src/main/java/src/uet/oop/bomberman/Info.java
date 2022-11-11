@@ -48,11 +48,11 @@ public class Info{
         render.fillText(text, -x + 65, row);
         text = BOMBCONTROLLED + "";
         render.fillText(text, -x + 138, row);
-        Text calc = new Text(SCORE + "");
+        Text calc = new Text("Điểm số: "+  SCORE + "");
 
         render.fillText(calc.getText(),
                 -x + 245.5 - calc.getBoundsInLocal().getWidth() / 2, row);
-        text = "TIME: " + Time + "";
+        text = "Thời gian: " + Time + "";
         render.fillText(text, -x + 350, row);
         text = "FPS: " + FPS;
         render.fillText(text, -x + 430, row);

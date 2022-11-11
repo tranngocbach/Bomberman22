@@ -11,7 +11,6 @@ import src.uet.oop.bomberman.screen.IntroGame;
 
 
 public class LoadGame extends Application {
-    //region variable
     private GraphicsContext render;
     private double width;
     private double height;
@@ -19,11 +18,7 @@ public class LoadGame extends Application {
     private AnimationTimer loop;
     static Stage mainStage;
     private Menu menu;
-    private boolean initdone;
-    //endregion
-    //region 🡇
-    //endregion
-    //region function
+
     @Override
     public void start(Stage stage) {
         width = 416 * 1.2 + 100;
@@ -51,7 +46,6 @@ public class LoadGame extends Application {
         stage.centerOnScreen();
         stage.setResizable(false);
         stage.show();
-        initdone = true;
         menu = null;
     }
 
@@ -67,7 +61,7 @@ public class LoadGame extends Application {
                 render.clearRect(0, 0, width, height);
                 introGame.draw(render);
 //                introGame.setDone(true);
-                if (introGame.isDone() && initdone) {
+                if (introGame.isDone()) {
                     loop.stop();
                     if (menu == null) {
                         menu = new Menu();
@@ -77,12 +71,8 @@ public class LoadGame extends Application {
         };
         loop.start();
     }
-    //endregion
-    //region 🡇
-    //endregion
-    //region main
+
     public static void main(String[] args) {
         launch(args);
     }
-    //endregion
 }
